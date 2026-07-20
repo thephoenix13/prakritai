@@ -1,0 +1,86 @@
+{
+  "expo": {
+    "name": "PrakritAI",
+    "slug": "prakritai",
+    "version": "1.0.0",
+    "scheme": "prakritai",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "jsEngine": "hermes",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAFA"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ai.prakrit.app",
+      "minimumOsVersion": "16.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "To photograph your medical documents for AI analysis",
+        "NSMicrophoneUsageDescription": "To record your voice for the health assistant",
+        "NSFaceIDUsageDescription": "To let you log in faster with Face ID"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FAFAFA"
+      },
+      "package": "ai.prakrit.app",
+      "targetSdkVersion": 34,
+      "compileSdkVersion": 34,
+      "minSdkVersion": 29,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/SpaceGrotesk-Regular.ttf",
+            "./assets/fonts/SpaceGrotesk-Medium.ttf",
+            "./assets/fonts/SpaceGrotesk-SemiBold.ttf",
+            "./assets/fonts/SpaceGrotesk-Bold.ttf",
+            "./assets/fonts/Inter-Regular.ttf",
+            "./assets/fonts/Inter-Medium.ttf",
+            "./assets/fonts/Inter-SemiBold.ttf"
+          ]
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#00B894",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "To photograph your medical documents for AI analysis"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "To select medical documents from your gallery"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
