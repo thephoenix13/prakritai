@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Prakrit AI — Clinical · 34 Screens</title>
+<title>Prakrit AI — Clinical · 43 Screens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -225,76 +225,119 @@ html.mob #screen{height:100%}
     <div style="font-family:var(--fi);font-size:15px;color:var(--text-2);text-align:center;line-height:1.65;max-width:240px">Your family's health,<br/>intelligently understood.</div>
   </div>
   <div style="width:100%;padding:0 28px 52px;display:flex;flex-direction:column;gap:12px">
-    <button class="btn btn-dk" style="height:54px;font-size:15px;font-weight:700;border-radius:16px">Get started — it's free</button>
+    <button class="btn btn-dk" style="height:54px;font-size:15px;font-weight:700;border-radius:16px">Next →</button>
     <div style="text-align:center;font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer">I already have an account <span style="color:var(--teal)">→</span></div>
     <!-- step dots -->
     <div style="display:flex;justify-content:center;gap:6px;padding-top:4px">
       <div style="width:24px;height:4px;border-radius:2px;background:var(--text)"></div>
       <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
       <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+      <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+      <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+      <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
     </div>
   </div>
 </div></div>
 
-<!-- ══ S02 · ONBOARDING HERO ══ -->
-<div id="s02"><div class="sf" style="position:relative;background:#000">
-  <div class="photo"></div>
-  <div class="photo-ov"></div>
-  <div class="sb px" style="position:relative;z-index:10"><span class="sb-t lt">9:41</span><div class="sb-i"><svg class="lt" viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg></div></div>
-  <div style="flex:1;position:relative;z-index:10"></div>
-  <div style="position:relative;z-index:10;padding:0 28px 44px">
-    <div style="font-family:var(--f);font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">Proactive Health</div>
-    <div style="font-family:var(--f);font-size:30px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.15;margin-bottom:14px">Get better at being healthy, every year.</div>
-    <div style="font-family:var(--fi);font-size:14px;color:rgba(255,255,255,.6);line-height:1.65;margin-bottom:28px">Start with 100+ biomarkers. Build a protocol. Track every marker across your family — in one place.</div>
-    <button class="btn" style="background:#fff;color:var(--text);height:52px;border-radius:14px;margin-bottom:12px;font-size:15px">Become a member</button>
-    <button class="btn" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.3);height:52px;border-radius:14px;font-size:14px">See what we test</button>
-    <div style="display:flex;justify-content:center;gap:8px;margin-top:20px">
-      <div style="width:20px;height:5px;border-radius:3px;background:#fff"></div>
-      <div style="width:5px;height:5px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
-      <div style="width:5px;height:5px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
-    </div>
-  </div>
-</div></div>
-
-<!-- ══ S03 · LOGIN ══ -->
-<div id="s03"><div class="sf" style="background:#fff">
+<!-- ══ S03a · SIGN IN ══ -->
+<div id="s03a"><div class="sf" style="background:#fff">
   <div class="sb px"><span class="sb-t">9:41</span><div class="sb-i"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg></div></div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 28px 36px">
-    <div style="margin-bottom:32px;text-align:center">
-      <div style="display:flex;align-items:baseline;gap:1px;justify-content:center;margin-bottom:6px">
-        <span style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--text)">prakrit</span>
-        <span style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--teal)">.ai</span>
+    <div style="margin-bottom:28px;text-align:center">
+      <div style="display:flex;align-items:baseline;gap:1px;justify-content:center;margin-bottom:8px">
+        <span style="font-family:var(--f);font-size:22px;font-weight:800;color:var(--text)">prakrit</span>
+        <span style="font-family:var(--f);font-size:22px;font-weight:800;color:var(--teal)">.ai</span>
       </div>
-      <div style="font-family:var(--fi);font-size:13px;color:var(--text-3)">Welcome back</div>
+      <div style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px">Welcome back</div>
+      <div style="font-family:var(--fi);font-size:13px;color:var(--text-3)">Sign in to your account</div>
     </div>
-    <div style="width:100%;margin-bottom:14px">
-      <div class="inp-label">Mobile Number</div>
-      <div class="inp">
+    <!-- Google primary -->
+    <div style="width:100%;height:52px;border:1.5px solid var(--border);background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      <span style="font-family:var(--f);font-size:14px;font-weight:700;color:var(--text)">Continue with Google</span>
+    </div>
+    <!-- divider -->
+    <div style="display:flex;align-items:center;gap:10px;width:100%;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-family:var(--f);font-size:11px;color:var(--text-3);font-weight:600">or</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <!-- Phone + Password -->
+    <div style="width:100%;margin-bottom:10px">
+      <div class="inp-label">Phone number</div>
+      <div class="inp" style="background:#fff">
         <span style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-2);border-right:1px solid var(--border);padding-right:12px;margin-right:10px">+91</span>
         <span style="font-family:var(--fi);font-size:14px;color:var(--text)">98765 43210</span>
       </div>
     </div>
-    <div style="width:100%;background:var(--teal-ll);border:1px solid var(--teal-l);border-radius:12px;padding:11px 14px;display:flex;gap:10px;align-items:center;margin-bottom:20px">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <div style="font-family:var(--fi);font-size:12px;color:#007A64;line-height:1.5">We'll send a 6-digit OTP to verify your number</div>
-    </div>
-    <button class="btn btn-dk" style="width:100%;margin-bottom:18px;height:52px;font-size:15px;border-radius:14px">Send OTP</button>
-    <div style="display:flex;align-items:center;gap:10px;width:100%;margin-bottom:18px">
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-      <div style="font-family:var(--f);font-size:11px;color:var(--text-3);font-weight:600">or continue with</div>
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-    </div>
-    <div style="display:flex;gap:10px;width:100%;margin-bottom:24px">
-      <div style="flex:1;height:46px;border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#fff">
-        <svg width="17" height="17" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        <span style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text)">Google</span>
-      </div>
-      <div style="flex:1;height:46px;border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#fff">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="#25D366"><path d="M20.52 3.48A11.9 11.9 0 002.88 17.9L1 23l5.25-1.38A11.91 11.91 0 1020.52 3.48z"/></svg>
-        <span style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text)">WhatsApp</span>
+    <div style="width:100%;margin-bottom:14px">
+      <div class="inp-label">Password</div>
+      <div class="inp" style="background:#fff">
+        <span style="font-family:var(--fi);font-size:14px;color:var(--text);flex:1;letter-spacing:.1em">••••••••</span>
+        <div style="font-family:var(--f);font-size:12px;font-weight:600;color:var(--teal);cursor:pointer">Show</div>
       </div>
     </div>
-    <div style="font-family:var(--fi);font-size:12px;color:var(--text-3)">Don't have an account? <span style="color:var(--teal);font-weight:700;cursor:pointer">Sign up free</span></div>
+    <button class="btn btn-dk" style="width:100%;margin-bottom:8px;height:52px;font-size:15px;border-radius:14px">Sign in →</button>
+    <div style="text-align:right;width:100%;margin-bottom:20px">
+      <span style="font-family:var(--f);font-size:12px;font-weight:600;color:var(--teal);cursor:pointer">Forgot password?</span>
+    </div>
+    <!-- Other options -->
+    <div style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:20px">
+      <div style="font-family:var(--f);font-size:12px;font-weight:600;color:var(--text-3)">Other sign-in options</div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div style="font-family:var(--fi);font-size:12px;color:var(--text-3)">New here? <span style="color:var(--teal);font-weight:700;cursor:pointer">Create account →</span></div>
+  </div>
+</div></div>
+
+<!-- ══ S03b · CREATE ACCOUNT ══ -->
+<div id="s03b"><div class="sf" style="background:#fff">
+  <div class="sb px"><span class="sb-t">9:41</span><div class="sb-i"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg></div></div>
+  <div style="flex:1;display:flex;flex-direction:column;padding:10px 28px 36px;overflow-y:auto">
+    <div style="margin-bottom:20px;text-align:center">
+      <div style="display:flex;align-items:baseline;gap:1px;justify-content:center;margin-bottom:8px">
+        <span style="font-family:var(--f);font-size:22px;font-weight:800;color:var(--text)">prakrit</span>
+        <span style="font-family:var(--f);font-size:22px;font-weight:800;color:var(--teal)">.ai</span>
+      </div>
+      <div style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px">Create your account</div>
+      <div style="font-family:var(--fi);font-size:13px;color:var(--text-3)">Free to join · Takes under 2 minutes</div>
+    </div>
+    <!-- Full Name -->
+    <div style="width:100%;margin-bottom:12px">
+      <div class="inp-label">Full name</div>
+      <div class="inp" style="background:#fff">
+        <span style="font-family:var(--fi);font-size:14px;color:var(--text-3)">Your full name</span>
+      </div>
+    </div>
+    <!-- Google primary -->
+    <div style="width:100%;height:52px;border:1.5px solid var(--border);background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      <span style="font-family:var(--f);font-size:14px;font-weight:700;color:var(--text)">Sign up with Google</span>
+    </div>
+    <!-- divider -->
+    <div style="display:flex;align-items:center;gap:10px;width:100%;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-family:var(--f);font-size:11px;color:var(--text-3);font-weight:600">or</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <!-- Phone + Password -->
+    <div style="width:100%;margin-bottom:10px">
+      <div class="inp-label">Phone number</div>
+      <div class="inp" style="background:#fff">
+        <span style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-2);border-right:1px solid var(--border);padding-right:12px;margin-right:10px">+91</span>
+        <span style="font-family:var(--fi);font-size:14px;color:var(--text-3)">10-digit mobile number</span>
+      </div>
+    </div>
+    <div style="width:100%;margin-bottom:16px">
+      <div class="inp-label">Create password</div>
+      <div class="inp" style="background:#fff">
+        <span style="font-family:var(--fi);font-size:14px;color:var(--text-3);flex:1">Min 8 characters</span>
+        <div style="font-family:var(--f);font-size:12px;font-weight:600;color:var(--teal);cursor:pointer">Show</div>
+      </div>
+    </div>
+    <button class="btn btn-dk" style="width:100%;margin-bottom:12px;height:52px;font-size:15px;border-radius:14px">Create account →</button>
+    <div style="font-family:var(--fi);font-size:11px;color:var(--text-3);text-align:center;line-height:1.6;margin-bottom:16px">By signing up you agree to our <span style="color:var(--teal);font-weight:600;cursor:pointer">Terms of Service</span> and <span style="color:var(--teal);font-weight:600;cursor:pointer">Privacy Policy</span></div>
+    <div style="font-family:var(--fi);font-size:12px;color:var(--text-3);text-align:center">Already have an account? <span style="color:var(--teal);font-weight:700;cursor:pointer">Sign in →</span></div>
   </div>
 </div></div>
 
@@ -415,6 +458,11 @@ html.mob #screen{height:100%}
     <div style="background:var(--teal-ll);border:1px solid var(--teal-l);border-radius:12px;padding:11px 14px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between">
       <div><div style="font-family:var(--f);font-size:12px;font-weight:600;color:#007A64">Biological Age</div><div style="font-family:var(--f);font-size:20px;font-weight:800;color:#007A64;margin-top:2px">28 yrs</div></div>
       <div style="text-align:right"><div style="font-family:var(--fi);font-size:11px;color:#007A64">12 yrs younger</div><div style="font-family:var(--fi);font-size:11px;color:#007A64">than average</div></div>
+    </div>
+    <!-- biomarker source info -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div style="font-family:var(--fi);font-size:12px;color:var(--text-2);line-height:1.55">Biomarkers are read automatically from the lab reports you upload — no manual entry needed. The more reports you upload, the richer your score gets.</div>
     </div>
     <div class="label" style="margin-bottom:12px">By system</div>
     <!-- list with ghost silhouette -->
@@ -1439,7 +1487,7 @@ html.mob #screen{height:100%}
     <div style="width:100%;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
       <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)">
         <div style="width:24px;height:24px;border-radius:7px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></div>
-        <div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-2);text-decoration:line-through">Sign up with phone number</div>
+        <div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-2);text-decoration:line-through">Create your account</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--teal-ll);cursor:pointer">
         <div style="width:24px;height:24px;border-radius:7px;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--teal)">2</div>
@@ -1448,10 +1496,18 @@ html.mob #screen{height:100%}
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);opacity:.4">
         <div style="width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--text-3)">3</div>
-        <div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-3)">Add family members</div>
+        <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-3)">Add a medication</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:1px">Set up reminders for any family member</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);opacity:.4">
+        <div style="width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--text-3)">4</div>
+        <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-3)">Add family members</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:1px">Track health for your whole family</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);opacity:.4">
+        <div style="width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--text-3)">5</div>
+        <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-3)">Set up emergency card</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:1px">Scan QR in emergencies · Works offline</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;opacity:.4">
-        <div style="width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--text-3)">4</div>
+        <div style="width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:700;color:var(--text-3)">6</div>
         <div style="font-family:var(--f);font-size:13px;font-weight:600;color:var(--text-3)">Get your health score</div>
       </div>
     </div>
@@ -1551,51 +1607,6 @@ html.mob #screen{height:100%}
   </div>
 </div></div>
 
-<!-- ══ S34 · SHARE REPORT WITH DOCTOR ══ -->
-<div id="s34"><div class="sf">
-  <div class="sb px"><span class="sb-t">9:41</span><div class="sb-i"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg></div></div>
-  <div class="px" style="padding-top:2px;padding-bottom:20px;display:flex;align-items:center;gap:12px">
-    <div class="back"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
-    <div class="h1">Share with Doctor</div>
-  </div>
-  <div class="inner px">
-    <!-- report to share -->
-    <div class="label" style="margin-bottom:8px">Report</div>
-    <div class="card" style="display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:16px">
-      <div style="width:38px;height:46px;background:var(--teal-ll);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
-      <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:700;color:var(--text)">HbA1c Report — Jul 15, 2026</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:2px">Apollo Diagnostics · Ramesh · 1 page</div></div>
-      <div class="g gC" style="width:24px;height:24px;font-size:10px">C</div>
-    </div>
-    <!-- doctor select -->
-    <div class="label" style="margin-bottom:8px">Send to</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--teal);border-radius:14px;padding:13px 16px;cursor:pointer">
-        <div style="width:38px;height:38px;border-radius:10px;background:var(--teal-ll);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--f);font-size:15px;font-weight:800;color:var(--teal)">A</div>
-        <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:700;color:var(--text)">Dr. Anjali Mehta</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:1px">Diabetologist · Connected</div></div>
-        <div style="width:20px;height:20px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer">
-        <div style="width:38px;height:38px;border-radius:10px;background:var(--yellow-l);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--f);font-size:15px;font-weight:800;color:var(--yellow)">V</div>
-        <div style="flex:1"><div style="font-family:var(--f);font-size:13px;font-weight:700;color:var(--text)">Dr. Vijay Patil</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:1px">Cardiologist</div></div>
-        <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border)"></div>
-      </div>
-    </div>
-    <!-- message -->
-    <div class="inp-label">Add a note (optional)</div>
-    <div style="border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;min-height:80px;margin-bottom:16px;background:#fff">
-      <div style="font-family:var(--fi);font-size:13px;color:var(--text-2);line-height:1.6">Hi Dr. Anjali, sharing Ramesh's HbA1c report from Jul 15. HbA1c has improved to 7.2% from 7.8%. Please review and advise on next steps.</div>
-    </div>
-    <!-- include AI summary toggle -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:22px">
-      <div><div style="font-family:var(--f);font-size:13px;font-weight:700;color:var(--text)">Include AI summary</div><div style="font-family:var(--fi);font-size:11px;color:var(--text-3);margin-top:2px">Attach Prakrit AI's analysis note</div></div>
-      <div style="width:42px;height:24px;border-radius:12px;background:var(--teal);position:relative;cursor:pointer"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;right:3px;top:3px"></div></div>
-    </div>
-    <button class="btn btn-dk" style="height:50px;font-size:14px;font-weight:800;border-radius:14px;margin-bottom:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" style="margin-right:6px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>Send to Dr. Anjali</button>
-    <div style="text-align:center;font-family:var(--fi);font-size:11px;color:var(--text-3);margin-bottom:24px">Report shared securely · Doctor will be notified</div>
-  </div>
-</div></div>
-
-
 <!-- ══ S35 · SPLASH 2 — AI REPORTS ══ -->
 <div id="s35"><div class="sf" style="background:#fff;position:relative;overflow:hidden">
   <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,184,148,.06) 0%,transparent 65%);pointer-events:none"></div>
@@ -1605,6 +1616,9 @@ html.mob #screen{height:100%}
   <div style="display:flex;justify-content:center;gap:6px;padding:4px 0 0">
     <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
     <div style="width:24px;height:4px;border-radius:2px;background:var(--text)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
     <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 28px">
@@ -1644,6 +1658,9 @@ html.mob #screen{height:100%}
     <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
     <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
     <div style="width:24px;height:4px;border-radius:2px;background:var(--text)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
+    <div style="width:8px;height:4px;border-radius:2px;background:var(--border)"></div>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 28px">
     <!-- visual: 4 family score rings -->
@@ -1675,28 +1692,50 @@ html.mob #screen{height:100%}
     </div>
   </div>
   <div style="padding:0 28px 44px;display:flex;flex-direction:column;gap:12px">
-    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:700;border-radius:15px">Get started — it's free →</button>
-    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">No credit card required</div>
+    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:700;border-radius:15px">Next →</button>
+    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">Swipe to continue</div>
   </div>
 </div></div>
 
-<!-- ══ S37 · PROFILE SETUP — HEIGHT, WEIGHT & BMI ══ -->
+<!-- ══ S37 · PROFILE SETUP ══ -->
 <div id="s37"><div class="sf" style="background:#fff">
   <div class="sb px"><span class="sb-t">9:41</span><div class="sb-i"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg></div></div>
   <!-- progress bar -->
   <div style="padding:6px 24px 0;flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-family:var(--fi);font-size:11px;color:var(--text-3)">Step 2 of 2 — Your body</div>
+      <div style="font-family:var(--fi);font-size:11px;color:var(--text-3)">Step 2 of 2 — Your profile</div>
       <div style="font-family:var(--f);font-size:11px;font-weight:700;color:var(--teal)">Almost done</div>
     </div>
     <div style="height:4px;background:var(--border);border-radius:2px"><div style="width:100%;height:100%;background:var(--teal);border-radius:2px"></div></div>
   </div>
   <div style="padding:20px 24px 0;flex-shrink:0">
-    <div style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:6px">Tell us about<br/>your body</div>
-    <div style="font-family:var(--fi);font-size:13px;color:var(--text-3);margin-bottom:20px">Used to calculate BMI and personalise your health score</div>
+    <div style="font-family:var(--f);font-size:24px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:6px">Your health profile</div>
+    <div style="font-family:var(--fi);font-size:13px;color:var(--text-3);margin-bottom:20px">Helps personalise your health score and recommendations</div>
   </div>
   <div class="inner px" style="padding-top:0">
-    <!-- gender -->
+    <!-- Date of Birth -->
+    <div class="label" style="margin-bottom:8px">Date of birth</div>
+    <div style="border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:#fff;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;cursor:pointer">
+      <div>
+        <div style="font-family:var(--f);font-size:17px;font-weight:700;color:var(--text)">15 March 1990</div>
+        <div style="font-family:var(--fi);font-size:12px;color:var(--text-3);margin-top:2px">Age: 34 years</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <!-- Blood Group -->
+    <div class="label" style="margin-bottom:8px">Blood group</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px">
+      <div class="chip chip-lt" style="padding:7px 12px">A+</div>
+      <div class="chip chip-lt" style="padding:7px 12px">A−</div>
+      <div class="chip chip-dk" style="padding:7px 12px">B+</div>
+      <div class="chip chip-lt" style="padding:7px 12px">B−</div>
+      <div class="chip chip-lt" style="padding:7px 12px">O+</div>
+      <div class="chip chip-lt" style="padding:7px 12px">O−</div>
+      <div class="chip chip-lt" style="padding:7px 12px">AB+</div>
+      <div class="chip chip-lt" style="padding:7px 12px">AB−</div>
+      <div class="chip chip-lt" style="padding:7px 14px;color:var(--text-3)">Not sure</div>
+    </div>
+    <!-- Gender -->
     <div class="label" style="margin-bottom:8px">Gender</div>
     <div style="display:flex;gap:8px;margin-bottom:18px">
       <div class="chip chip-dk" style="flex:1;justify-content:center;padding:10px">Female</div>
@@ -1735,28 +1774,37 @@ html.mob #screen{height:100%}
       </div>
     </div>
     <!-- live BMI card -->
-    <div style="background:var(--teal-ll);border:1.5px solid var(--teal-l);border-radius:18px;padding:18px 20px;margin-bottom:20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="background:var(--teal-ll);border:1.5px solid var(--teal-l);border-radius:18px;padding:16px 20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="font-family:var(--f);font-size:11px;font-weight:700;color:#007A64;text-transform:uppercase;letter-spacing:.06em">Your BMI</div>
         <div style="background:#fff;border-radius:8px;padding:3px 10px;font-family:var(--f);font-size:12px;font-weight:700;color:var(--teal)">Normal range</div>
       </div>
-      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">
-        <div style="font-family:var(--f);font-size:48px;font-weight:800;color:var(--text);line-height:1">23.3</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+        <div style="font-family:var(--f);font-size:40px;font-weight:800;color:var(--text);line-height:1">23.3</div>
         <div style="font-family:var(--fi);font-size:14px;color:var(--text-2)">kg/m²</div>
       </div>
-      <!-- BMI scale bar -->
-      <div style="margin-bottom:6px">
-        <div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#93C5FD 0%,#00B894 30%,#00B894 50%,#D4A017 70%,#EF4444 100%);position:relative;margin-bottom:4px">
-          <div style="position:absolute;left:38%;top:-3px;width:14px;height:14px;border-radius:50%;background:#fff;border:2.5px solid var(--teal);box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-family:var(--fi);font-size:9px;color:#007A64">
-          <span>Under 18.5</span><span>18.5–24.9</span><span>25–29.9</span><span>30+</span>
-        </div>
+      <div style="height:6px;border-radius:4px;background:linear-gradient(90deg,#93C5FD 0%,#00B894 30%,#00B894 50%,#D4A017 70%,#EF4444 100%);position:relative;margin-bottom:4px">
+        <div style="position:absolute;left:38%;top:-4px;width:14px;height:14px;border-radius:50%;background:#fff;border:2.5px solid var(--teal);box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
       </div>
-      <div style="font-family:var(--fi);font-size:12px;color:#007A64;line-height:1.5">BMI 23.3 is within the healthy range (18.5–24.9). Maintaining this through diet and activity is key to long-term health.</div>
     </div>
-    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:800;border-radius:15px;margin-bottom:12px">View my health score →</button>
-    <div style="text-align:center;font-family:var(--fi);font-size:11px;color:var(--text-3);margin-bottom:24px">You can always update height &amp; weight in Settings</div>
+    <!-- Known conditions -->
+    <div class="label" style="margin-bottom:8px">Known conditions <span style="font-weight:400;color:var(--text-3);font-family:var(--fi)">(select all that apply)</span></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px">
+      <div class="chip chip-lt" style="padding:7px 12px">Diabetes</div>
+      <div class="chip chip-lt" style="padding:7px 12px">Hypertension</div>
+      <div class="chip chip-lt" style="padding:7px 12px">Thyroid</div>
+      <div class="chip chip-lt" style="padding:7px 12px">PCOS</div>
+      <div class="chip chip-lt" style="padding:7px 12px">Heart disease</div>
+      <div class="chip chip-lt" style="padding:7px 12px">Asthma</div>
+      <div class="chip chip-dk" style="padding:7px 12px">None</div>
+    </div>
+    <!-- Allergies -->
+    <div class="label" style="margin-bottom:8px">Allergies <span style="font-weight:400;color:var(--text-3);font-family:var(--fi)">(optional)</span></div>
+    <div class="inp" style="background:#fff;margin-bottom:22px">
+      <span style="font-family:var(--fi);font-size:14px;color:var(--text-3)">e.g. Penicillin, Pollen, Nuts…</span>
+    </div>
+    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:800;border-radius:15px;margin-bottom:12px">Save and continue →</button>
+    <div style="text-align:center;font-family:var(--fi);font-size:11px;color:var(--text-3);margin-bottom:24px">You can always update this in Settings</div>
   </div>
 </div></div>
 
@@ -1834,6 +1882,7 @@ html.mob #screen{height:100%}
   </div>
   <div style="padding:0 28px 44px;display:flex;flex-direction:column;gap:12px">
     <button class="btn btn-dk" style="height:52px;font-size:14px;font-weight:700;border-radius:15px">Next →</button>
+    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">Swipe to continue</div>
   </div>
 </div></div>
 
@@ -1905,6 +1954,7 @@ html.mob #screen{height:100%}
   </div>
   <div style="padding:0 28px 44px;display:flex;flex-direction:column;gap:12px">
     <button class="btn btn-dk" style="height:52px;font-size:14px;font-weight:700;border-radius:15px">Next →</button>
+    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">Swipe to continue</div>
   </div>
 </div></div>
 
@@ -1962,8 +2012,8 @@ html.mob #screen{height:100%}
     </div>
   </div>
   <div style="padding:0 28px 44px;display:flex;flex-direction:column;gap:12px">
-    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:700;border-radius:15px">Get started — it's free →</button>
-    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">No credit card required</div>
+    <button class="btn btn-dk" style="height:52px;font-size:15px;font-weight:700;border-radius:15px">Get started →</button>
+    <div style="text-align:center;font-family:var(--fi);font-size:12px;color:var(--text-3)">Free · No credit card required</div>
   </div>
 </div></div>
 
@@ -2356,13 +2406,13 @@ const screens=[
   {id:'s38',label:'S38 · Splash 4 — Medication Reminders'},
   {id:'s39',label:'S39 · Splash 5 — Emergency Hub'},
   {id:'s40',label:'S40 · Splash 6 — Prakrit Voice'},
-  {id:'s02',label:'S02 · Onboarding Hero'},
-  {id:'s03',label:'S03 · Login'},
-  {id:'s37',label:'S37 · Profile Setup — Height & Weight'},
+  {id:'s03a',label:'S03a · Sign In'},
+  {id:'s03b',label:'S03b · Create Account (Sign Up)'},
+  {id:'s37',label:'S37 · Profile Setup'},
   {id:'s04',label:'S04 · Home Dashboard'},
-  {id:'s05',label:'S05 · Health Score'},
+  {id:'s05',label:'S05 · Health Score Breakdown'},
   {id:'s06',label:'S06 · Biomarker Categories'},
-  {id:'s07',label:'S07 · Metabolic Category'},
+  {id:'s07',label:'S07 · Category: Metabolic'},
   {id:'s08',label:'S08 · HbA1c Detail'},
   {id:'s09',label:'S09 · Documents Library'},
   {id:'s10',label:'S10 · Upload Document'},
@@ -2371,13 +2421,13 @@ const screens=[
   {id:'s13',label:'S13 · Voice Listening'},
   {id:'s14',label:'S14 · Action Protocol'},
   {id:'s15',label:'S15 · Family Hub'},
-  {id:'s16',label:'S16 · Member: Ramesh'},
+  {id:'s16',label:'S16 · Member Detail — Ramesh'},
   {id:'s41',label:'S41 · Family Circle Hub'},
   {id:'s42',label:'S42 · Send Invite'},
-  {id:'s43',label:'S43 · Join via Link (Recipient)'},
+  {id:'s43',label:'S43 · Join via Invite Link — Recipient'},
   {id:'s44',label:'S44 · Manage Requests'},
-  {id:'s45',label:'S45 · Linked Family View'},
-  {id:'s17',label:'S17 · Critical Alert'},
+  {id:'s45',label:'S45 · Linked Family View — Read-Only'},
+  {id:'s17',label:'S17 · Critical Value Alert'},
   {id:'s18',label:'S18 · Medications List'},
   {id:'s19',label:'S19 · Medication Detail'},
   {id:'s20',label:'S20 · Health Timeline'},
@@ -2385,15 +2435,14 @@ const screens=[
   {id:'s22',label:'S22 · Emergency Card'},
   {id:'s23',label:'S23 · Doctor Network'},
   {id:'s24',label:'S24 · Profile & Settings'},
-  {id:'s25',label:'S25 · Membership'},
-  {id:'s26',label:'S26 · Lock Screen'},
+  {id:'s25',label:'S25 · Membership / Upgrade'},
+  {id:'s26',label:'S26 · Lock Screen / Notification'},
   {id:'s28',label:'S28 · Doctor Profile'},
   {id:'s29',label:'S29 · Personalized Protocol'},
   {id:'s30',label:'S30 · Full Document Analysis'},
   {id:'s31',label:'S31 · Voice Response'},
-  {id:'s32',label:'S32 · Empty Dashboard'},
+  {id:'s32',label:'S32 · Empty State Dashboard'},
   {id:'s33',label:'S33 · Add Medication'},
-  {id:'s34',label:'S34 · Share Report'},
 ];
 let cur=0;
 function show(){

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrakritAI — Screen Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest:    #1B4332;
+      --forest-lt: #E8F5EE;
+      --teal:      #00B894;
+      --teal-lt:   #CCFBF1;
+      --teal-ll:   #E8FDF8;
+      --orange:    #C4521A;
+      --orange-lt: #FEF3EE;
+      --sage:      #74B49B;
+      --ink:       #09090B;
+      --muted:     #71717A;
+      --faint:     #A1A1AA;
+      --bg:        #F8F4EE;
+      --white:     #FFFFFF;
+      --border:    #E4E4E7;
+      --surface:   #F4F4F5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0c2318 0%, var(--forest) 50%, #1a3d2d 100%);
+      color: white;
+      padding: 56px 48px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -60px;
+      width: 340px; height: 340px;
+      border-radius: 50%;
+      background: rgba(0,184,148,0.07);
+    }
+    .hero-label {
+      display: inline-block;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.08;
+      margin-bottom: 12px;
+    }
+    .hero h1 span { color: #5EFCD9; }
+    .hero-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,0.52);
+      margin-bottom: 28px;
+    }
+    .hero-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hero-pill {
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.80);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .hero-pill.teal { background: rgba(0,184,148,0.18); border-color: rgba(0,184,148,0.35); color: #5EFCD9; }
+
+    /* ── PAGE WRAPPER ── */
+    .page { max-width: 980px; margin: 0 auto; padding: 48px 40px; }
+
+    /* ── FLOW OVERVIEW TABLE ── */
+    .overview {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 52px;
+    }
+    .overview-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .overview-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .overview-count {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+    }
+    .ov-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 90px 80px;
+      gap: 0;
+      align-items: center;
+      padding: 13px 24px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.12s;
+    }
+    .ov-row:last-child { border-bottom: none; }
+    .ov-row:hover { background: var(--surface); }
+    .ov-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--faint);
+    }
+    .ov-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .ov-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .ov-screens {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .ov-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ── FLOW SECTION ── */
+    .flow-section { margin-bottom: 60px; }
+    .flow-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .flow-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      flex-shrink: 0;
+    }
+    .flow-meta { flex: 1; }
+    .flow-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 2px;
+    }
+    .flow-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -.01em;
+    }
+    .flow-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    .flow-count {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--faint);
+      margin-top: 6px;
+    }
+
+    /* ── FLOW PATH ── */
+    .flow-path {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 14px 18px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      row-gap: 8px;
+    }
+    .fp-step {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .fp-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--white);
+      padding: 3px 7px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .fp-arrow {
+      font-size: 12px;
+      color: var(--faint);
+      padding: 0 5px;
+    }
+    .fp-branch {
+      font-size: 11px;
+      color: var(--faint);
+      padding: 0 5px;
+      font-style: italic;
+    }
+
+    /* ── SCREEN TABLE ── */
+    .screen-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .screen-table thead tr {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .screen-table thead th {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 11px 16px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .screen-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .screen-table tbody tr:last-child { border-bottom: none; }
+    .screen-table tbody tr:hover { background: #FAFAF9; }
+    .screen-table td {
+      padding: 14px 16px;
+      vertical-align: top;
+    }
+
+    .sid {
+      display: inline-flex;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .screen-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .screen-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .route {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface);
+      padding: 3px 7px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .entry-exit {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .entry-exit code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink);
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .tag {
+      display: inline-block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-right: 4px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    .tag-modal    { background: #EDE9FE; color: #6D28D9; }
+    .tag-auth     { background: #DBEAFE; color: #1D4ED8; }
+    .tag-tab      { background: var(--teal-lt); color: #00725E; }
+    .tag-system   { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .tag-deeplink { background: #FEF3C7; color: #92400E; }
+    .tag-premium  { background: var(--orange-lt); color: var(--orange); }
+    .tag-offline  { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+
+    .col-id    { width: 80px; }
+    .col-name  { width: 200px; }
+    .col-route { width: 180px; }
+    .col-entry { width: 170px; }
+    .col-exit  { width: 170px; }
+    .col-notes { width: auto; }
+
+    /* ── FOOTER ── */
+    .footer-strip {
+      background: var(--forest);
+      color: white;
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-strip .brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .footer-strip .brand span { color: #5EFCD9; }
+    .footer-strip p { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .hero { padding: 40px 20px 36px; }
+      .hero h1 { font-size: 30px; }
+      .page { padding: 32px 16px; }
+      .screen-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .ov-row { grid-template-columns: 28px 1fr 60px; }
+      .ov-screens { display: none; }
+      .footer-strip { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div style="max-width:980px;margin:0 auto;">
+    <div class="hero-label">PrakritAI · Screen Inventory</div>
+    <h1>43 screens.<br><span>One end-to-end flow.</span></h1>
+    <div class="hero-meta">Version 1.1 · July 2026 · Reference: Screens-Clinical-44.html</div>
+    <div class="hero-pills">
+      <div class="hero-pill teal">43 Screens</div>
+      <div class="hero-pill">8 Flows</div>
+      <div class="hero-pill">5 Bottom Nav Tabs</div>
+      <div class="hero-pill">Expo Router · File-based</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- FLOW OVERVIEW -->
+  <div class="overview">
+    <div class="overview-header">
+      <div class="overview-title">Flow Overview</div>
+      <div class="overview-count">8 flows · 43 screens</div>
+    </div>
+    <a class="ov-row" href="#f1">
+      <div class="ov-num">F1</div>
+      <div>
+        <div class="ov-name">First Launch &amp; Onboarding</div>
+        <div class="ov-desc">Splash carousel → login → profile setup → dashboard</div>
+      </div>
+      <div class="ov-screens">S01 S03a/b S37<br>S35–S40</div>
+      <div><span class="ov-badge" style="background:#EDE9FE;color:#6D28D9;">9 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f2">
+      <div class="ov-num">F2</div>
+      <div>
+        <div class="ov-name">Dashboard</div>
+        <div class="ov-desc">Home tab — family health at a glance, quick actions</div>
+      </div>
+      <div class="ov-screens">S04 S32</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">2 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f3">
+      <div class="ov-num">F3</div>
+      <div>
+        <div class="ov-name">Health Score</div>
+        <div class="ov-desc">Score breakdown → biomarker categories → individual marker detail</div>
+      </div>
+      <div class="ov-screens">S05 S06 S07 S08</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">4 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f4">
+      <div class="ov-num">F4</div>
+      <div>
+        <div class="ov-name">Documents</div>
+        <div class="ov-desc">Library → upload → AI analysis → full breakdown</div>
+      </div>
+      <div class="ov-screens">S09 S10 S11 S30</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">4 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f5">
+      <div class="ov-num">F5</div>
+      <div>
+        <div class="ov-name">AI Assistant</div>
+        <div class="ov-desc">Text chat → voice → voice response → action protocol</div>
+      </div>
+      <div class="ov-screens">S12 S13 S14 S31</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">4 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f6">
+      <div class="ov-num">F6</div>
+      <div>
+        <div class="ov-name">Family Hub &amp; Circle</div>
+        <div class="ov-desc">Member management, linked family Circle, critical alerts</div>
+      </div>
+      <div class="ov-screens">S15 S16 S17<br>S41–S45</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">8 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f7">
+      <div class="ov-num">F7</div>
+      <div>
+        <div class="ov-name">Medications</div>
+        <div class="ov-desc">Medication list → detail view → add new medication</div>
+      </div>
+      <div class="ov-screens">S18 S19 S33</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">3 screens</span></div>
+    </a>
+    <a class="ov-row" href="#f8">
+      <div class="ov-num">F8</div>
+      <div>
+        <div class="ov-name">More &amp; Utilities</div>
+        <div class="ov-desc">Timeline, Insights, Emergency, Doctors, Protocol, Settings, Membership</div>
+      </div>
+      <div class="ov-screens">S20–S29<br>(S27 deferred)</div>
+      <div><span class="ov-badge" style="background:#E8FDF8;color:#007A64;">9 screens</span></div>
+    </a>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F1 — ONBOARDING -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f1">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#EDE9FE;">🚀</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 1</div>
+        <div class="flow-name">First Launch &amp; Onboarding</div>
+        <div class="flow-desc">Runs once on first install. 6-screen splash carousel explains the product, then auth (sign in or create account) and a quick profile setup before landing on the dashboard. Skippable after login.</div>
+        <div class="flow-count">9 screens · Runs once · Skippable after login</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#6D28D9;">S01</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#7C3AED;">S35</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#7C3AED;">S36</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#7C3AED;">S38</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#7C3AED;">S39</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#7C3AED;">S40</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#4C1D95;">S03a</span><span class="fp-branch">/</span><span class="fp-id" style="background:#4C1D95;">S03b</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#3B0764;">S37</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1B4332;">S04</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S01</span></td>
+          <td><div class="screen-name">Splash 1 — Wordmark</div><div class="screen-desc">PrakritAI logo on dark forest background. First frame after cold launch.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">App cold launch<br><code>first_launch = true</code></td>
+          <td class="entry-exit">Auto-advance →<br><code>S35</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> 2s auto-advance; user can also tap "Next →" to advance manually. Skipped entirely for returning users who are already authenticated.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S35</span></td>
+          <td><div class="screen-name">Splash 2 — AI Reports</div><div class="screen-desc">Feature highlight: upload any lab report, get a plain-language AI summary in seconds.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">Auto-advance from<br><code>S01</code></td>
+          <td class="entry-exit">Next → <code>S36</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Part of swipeable 6-screen carousel. Step dots shown. No skip button — carousel must be completed in sequence.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S36</span></td>
+          <td><div class="screen-name">Splash 3 — Family Hub</div><div class="screen-desc">Feature highlight: manage health for every family member in one place.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">Swipe / Next from<br><code>S35</code></td>
+          <td class="entry-exit">Next → <code>S38</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Carousel step 3 of 6.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S38</span></td>
+          <td><div class="screen-name">Splash 4 — Medication Reminders</div><div class="screen-desc">Feature highlight: never miss a dose with smart, member-specific reminders.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">Swipe / Next from<br><code>S36</code></td>
+          <td class="entry-exit">Next → <code>S39</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Carousel step 4 of 6.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S39</span></td>
+          <td><div class="screen-name">Splash 5 — Emergency Hub</div><div class="screen-desc">Feature highlight: critical info for every member, accessible offline via QR.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">Swipe / Next from<br><code>S38</code></td>
+          <td class="entry-exit">Next → <code>S40</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Carousel step 5 of 6.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S40</span></td>
+          <td><div class="screen-name">Splash 6 — Prakrit Voice</div><div class="screen-desc">Feature highlight: ask health questions by voice in Hindi or English.</div></td>
+          <td><span class="route">/(onboarding)/</span></td>
+          <td class="entry-exit">Swipe / Next from<br><code>S39</code></td>
+          <td class="entry-exit">"Get started →" →<br><code>S03a</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Last carousel step. CTA reads "Get started →" — goes directly to auth.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S03a</span></td>
+          <td><div class="screen-name">Sign In</div><div class="screen-desc">Default auth state. "Continue with Google" (large, primary), Phone + Password (secondary), "Other sign-in options" collapsed for email. "Forgot password?" link. "Create account →" toggle at bottom switches to S03b.</div></td>
+          <td><span class="route">/(auth)/sign-in</span></td>
+          <td class="entry-exit">End of splash carousel<br>Session expired<br>Biometric fail<br>"Sign in" toggle from <code>S03b</code></td>
+          <td class="entry-exit">Auth success → <code>S04</code> (returning user)<br>"Create account" → <code>S03b</code><br>"Forgot password" → reset email flow</td>
+          <td class="screen-desc"><span class="tag tag-auth">auth</span> No OTP. Silent Google re-auth if session still valid — user never sees this screen. Biometric shortcut shown on second app open if enabled. Never show raw Supabase errors.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S03b</span></td>
+          <td><div class="screen-name">Create Account (Sign Up)</div><div class="screen-desc">Same layout as S03a but with an additional Name field above the auth options. Google button creates account on first use automatically. Phone/Email paths show Name + Password + Confirm Password. "Sign in" toggle at bottom switches back to S03a.</div></td>
+          <td><span class="route">/(auth)/sign-up</span></td>
+          <td class="entry-exit">"Create account" toggle from <code>S03a</code><br><code>S43</code> Circle invite (new user path)</td>
+          <td class="entry-exit">Account created → <code>S37</code> (profile setup)<br>"Sign in" → <code>S03a</code></td>
+          <td class="screen-desc"><span class="tag tag-auth">auth</span> Name field pre-fills from Google profile if Google Sign-In used. Google path skips name field entirely — name pulled from Google. Password min 8 chars, show/hide toggle. Terms + Privacy links required before submit.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#EDE9FE;color:#6D28D9;">S37</span></td>
+          <td><div class="screen-name">Profile Setup</div><div class="screen-desc">Full health profile: date of birth (age auto-calculated), blood group chips (A+/B+/O+ etc.), gender, height + weight (cm/kg) with live BMI band, known conditions multi-select (Diabetes, HTN, Thyroid, PCOS, etc.), allergies text field.</div></td>
+          <td><span class="route">/(onboarding)/profile</span></td>
+          <td class="entry-exit">Post sign-up (new user only)<br>From <code>S03b</code></td>
+          <td class="entry-exit">"Save and continue →" → <code>S04</code><br>"Skip" → <code>S04</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Skippable. DOB calculates age live. Blood group chips. Conditions are multi-select chips. BMI computed live. All fields editable later in Settings.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F2 — DASHBOARD -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f2">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#E8FDF8;">🏠</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 2</div>
+        <div class="flow-name">Dashboard</div>
+        <div class="flow-desc">The Home tab. Entry point for everything. Shows family health summary, today's reminders, health score ring, and quick-action shortcuts. Empty state shown until first family member is added.</div>
+        <div class="flow-count">2 screens · Root tab · Always accessible</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#A1A1AA;">S32</span><span class="fp-branch"> (empty) →</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1B4332;">S04</span><span class="fp-branch"> (populated)</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S04</span></td>
+          <td><div class="screen-name">Home Dashboard</div><div class="screen-desc">Greeting, health score ring, Bio Age + BMI tiles, family member mini-rings, today's medication reminders, dark AI prompt bar at bottom.</div></td>
+          <td><span class="route">/(tabs)/</span></td>
+          <td class="entry-exit">Home tab tap<br>Post-onboarding<br>Back from any tab</td>
+          <td class="entry-exit">Score ring → <code>S05</code><br>Family card → <code>S16</code><br>AI bar → <code>S12</code><br>Reminder → <code>S19</code><br>"See all" family → <code>S15</code></td>
+          <td class="screen-desc"><span class="tag tag-tab">tab-root</span> Pull-to-refresh. Loads within 1.5s on 4G. Score ring animates in. Show skeleton loaders — never blank. Renders S32 if no family members yet.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#71717A;">S32</span></td>
+          <td><div class="screen-name">Empty State Dashboard</div><div class="screen-desc">Zero-data state before first report upload. Guided 6-step checklist: (1) Create account ✓, (2) Upload a lab report (active CTA), (3) Add a medication, (4) Add family members, (5) Set up emergency card, (6) Get your health score.</div></td>
+          <td><span class="route">/(tabs)/</span></td>
+          <td class="entry-exit">Dashboard when<br><code>documents = 0</code></td>
+          <td class="entry-exit">"Upload first report →" → <code>S10</code><br>Checklist step 3 → <code>S33</code><br>Checklist step 4 → Add member<br>Checklist step 5 → <code>S22</code></td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Same route as S04. Rendered when user has 0 uploaded documents. Each checklist step becomes tappable once its predecessor is done.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F3 — HEALTH SCORE -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f3">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#E8FDF8;">📊</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 3</div>
+        <div class="flow-name">Health Score</div>
+        <div class="flow-desc">Four-level drill-down from overall score to individual biomarker. Accessed by tapping the score ring on the dashboard. Each level shows a grade badge (A/B/C/D) and an AI plain-language explanation.</div>
+        <div class="flow-count">4 screens · Drill-down flow</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#1B4332;">S04</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#00B894;">S05</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#00A07D;">S06</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#009070;">S07</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#007A60;">S08</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S05</span></td>
+          <td><div class="screen-name">Health Score Breakdown</div><div class="screen-desc">0–100 score ring with grade (A/B/C/D), member name, "last updated" date, and category summary cards (Metabolic, Cardiovascular, etc.) each with their own grade.</div></td>
+          <td><span class="route">/(tabs)/score/[id]</span></td>
+          <td class="entry-exit">Score ring tap on<br><code>S04</code></td>
+          <td class="entry-exit">Category card → <code>S06</code><br>Back → <code>S04</code></td>
+          <td class="screen-desc">Score computed by <code>generate-health-score</code> edge function. Ring animates 0→value on enter. Info banner above "By system" list: "Biomarkers are read automatically from the lab reports you upload — no manual entry needed." Prompt to upload document if no data yet.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S06</span></td>
+          <td><div class="screen-name">Biomarker Categories</div><div class="screen-desc">List of all health categories (Metabolic, Cardiovascular, Hormonal, Renal, CBC, Thyroid) with grade badge, marker count, and "last measured" date.</div></td>
+          <td><span class="route">/(tabs)/score/[id]/categories</span></td>
+          <td class="entry-exit">Category tap on <code>S05</code></td>
+          <td class="entry-exit">Category row → <code>S07</code><br>Back → <code>S05</code></td>
+          <td class="screen-desc">Each category is sourced from documents uploaded for this member. Missing category rows are greyed out with "No data yet".</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S07</span></td>
+          <td><div class="screen-name">Category: Metabolic</div><div class="screen-desc">Sub-markers within a category (e.g., HbA1c, Fasting Glucose, eGFR). Each row shows value, reference range, grade, and trend arrow.</div></td>
+          <td><span class="route">/(tabs)/score/[id]/[category]</span></td>
+          <td class="entry-exit">Category row on <code>S06</code></td>
+          <td class="entry-exit">Marker row → <code>S08</code><br>Back → <code>S06</code></td>
+          <td class="screen-desc">Category name is dynamic (Metabolic, Cardiovascular, etc.). Markers sorted: abnormal first, then alphabetical.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S08</span></td>
+          <td><div class="screen-name">HbA1c Detail</div><div class="screen-desc">Single biomarker deep-dive. Value, reference range, grade, 6-month trend line chart, and AI plain-language explanation in a note card. Source report linked.</div></td>
+          <td><span class="route">/(tabs)/score/[id]/[category]/[marker]</span></td>
+          <td class="entry-exit">Marker row on <code>S07</code></td>
+          <td class="entry-exit">Source report → <code>S11</code><br>"Ask AI" → <code>S12</code><br>Back → <code>S07</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> Trend chart from <code>React Native Skia</code>. AI explanation fetched once and cached. Marker name is dynamic.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F4 — DOCUMENTS -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f4">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#FEF3EE;">📄</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 4</div>
+        <div class="flow-name">Documents</div>
+        <div class="flow-desc">Central medical records store. Upload from camera or file picker, AI extracts values, viewer shows the analysis. Full breakdown available from the viewer.</div>
+        <div class="flow-count">4 screens · Upload is a modal</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#C4521A;">S09</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#C4521A;">S10</span><span class="fp-branch"> (upload modal) →</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#A0411A;">S11</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#803419;">S30</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#FEF3EE;color:#C4521A;">S09</span></td>
+          <td><div class="screen-name">Documents Library</div><div class="screen-desc">All uploaded documents for the selected family member. Sorted by date. Each card shows: report type, member name, date, AI grade badge, and "Analysed / Processing / Failed" status.</div></td>
+          <td><span class="route">/(tabs)/documents/</span></td>
+          <td class="entry-exit">Docs tab tap<br>Dashboard quick-action</td>
+          <td class="entry-exit">Doc card → <code>S11</code><br>"+" / Upload → <code>S10</code><br>Member filter tap</td>
+          <td class="screen-desc"><span class="tag tag-tab">tab-root</span> Member filter across top. FlashList for perf. Pull-to-refresh. "Upload your first document" empty state.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEF3EE;color:#C4521A;">S10</span></td>
+          <td><div class="screen-name">Upload Document</div><div class="screen-desc">Modal with two upload options: camera capture (opens native camera) and file picker (PDF, JPG, PNG). Member selector, document type selector (Lab Report / Prescription / Scan / Other). Progress bar during AI processing.</div></td>
+          <td><span class="route">/(tabs)/documents/upload</span></td>
+          <td class="entry-exit">"+" on <code>S09</code><br>Dashboard quick-action<br>"Upload first report →" on <code>S32</code></td>
+          <td class="entry-exit">On success → <code>S11</code><br>Cancel → <code>S09</code></td>
+          <td class="screen-desc"><span class="tag tag-modal">modal</span> Full-screen slide-up. <code>expo-camera</code> + <code>expo-document-picker</code>. AI analysis runs server-side (<code>analyze-document</code> edge fn). Show spinner while processing.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEF3EE;color:#C4521A;">S11</span></td>
+          <td><div class="screen-name">Document Viewer</div><div class="screen-desc">Report header (name, member, lab, date). Teal AI analysis banner ("X values extracted"). Extracted values table with grade badges per row. AI note card at bottom. Ask AI + Share buttons.</div></td>
+          <td><span class="route">/(tabs)/documents/[id]</span></td>
+          <td class="entry-exit">Doc card on <code>S09</code><br>After upload (<code>S10</code>)<br>From <code>S08</code> source link</td>
+          <td class="entry-exit">"Ask AI" → <code>S12</code><br>"Full analysis" → <code>S30</code><br>Back → <code>S09</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> AI note cached after first fetch. Grade badges A/B/C/D per extracted value. Shows "Analysis in progress" state if not yet complete.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEF3EE;color:#C4521A;">S30</span></td>
+          <td><div class="screen-name">Full Document Analysis</div><div class="screen-desc">Expanded view of the AI analysis for a document. All extracted values, reference ranges, trends from prior reports, and full AI narrative summary. Compare with previous reports of the same type.</div></td>
+          <td><span class="route">/(tabs)/documents/[id]/analysis</span></td>
+          <td class="entry-exit">"Full analysis" on <code>S11</code></td>
+          <td class="entry-exit">Marker row → <code>S08</code><br>"Ask AI" → <code>S12</code><br>Back → <code>S11</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> <span class="tag tag-premium">premium</span> Full narrative from <code>generate-health-insights</code> edge fn. Trend comparison requires ≥2 reports of same type.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F5 — AI ASSISTANT -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f5">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#E8FDF8;">🤖</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 5</div>
+        <div class="flow-name">AI Assistant</div>
+        <div class="flow-desc">Context-aware chat with the family's full health history. Text or voice input. Bilingual (Hindi + English). Always ends with a medical disclaimer. Never replaces doctor advice — redirects to doctor when appropriate.</div>
+        <div class="flow-count">4 screens · Available from any screen via AI tab or prompt bar</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#1B4332;">S12</span><span class="fp-branch"> (text) or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#00B894;">S13</span><span class="fp-branch"> (voice) →</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#00B894;">S31</span><span class="fp-branch"> (voice response) or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#007A64;">S14</span><span class="fp-branch"> (action protocol)</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S12</span></td>
+          <td><div class="screen-name">AI Chat</div><div class="screen-desc">Scrollable chat thread. User messages right-aligned (dark bg). AI responses left-aligned (white card with border). Bilingual support. Action chips after AI responses. Input bar with mic icon for voice switch.</div></td>
+          <td><span class="route">/(tabs)/ai/</span></td>
+          <td class="entry-exit">AI tab tap<br>Dashboard AI bar<br>"Ask AI" on <code>S11</code><br>"Ask AI" on <code>S08</code></td>
+          <td class="entry-exit">Mic tap → <code>S13</code><br>Action chip → varies<br>Protocol chip → <code>S14</code></td>
+          <td class="screen-desc"><span class="tag tag-tab">tab-root</span> <span class="tag tag-premium">AI</span> Powered by <code>ai-health-assistant</code> edge fn. Injects selected member's full context. Disclaimer appended to every response. Medical advice redirect built in.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S13</span></td>
+          <td><div class="screen-name">Voice Listening</div><div class="screen-desc">Full-screen voice input. Animated waveform. Real-time transcript appears below. "Listening…" state, then "Processing…" on send. Tap anywhere to cancel.</div></td>
+          <td><span class="route">/(tabs)/ai/voice</span></td>
+          <td class="entry-exit">Mic tap on <code>S12</code></td>
+          <td class="entry-exit">Auto → <code>S31</code> on silence<br>Cancel → <code>S12</code></td>
+          <td class="screen-desc"><span class="tag tag-modal">modal</span> Uses <code>expo-av</code> for audio capture. Auto-sends after 2s silence. Hindi + English both handled by backend.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S31</span></td>
+          <td><div class="screen-name">Voice Response</div><div class="screen-desc">AI answer displayed as a large text card. Text-to-speech plays automatically. "Read aloud" toggle. Option to continue in voice or switch to text chat.</div></td>
+          <td><span class="route">/(tabs)/ai/voice/response</span></td>
+          <td class="entry-exit">After voice input<br>processed from <code>S13</code></td>
+          <td class="entry-exit">"Continue voice" → <code>S13</code><br>"Back to chat" → <code>S12</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> TTS via <code>expo-speech</code>. Same <code>ai-health-assistant</code> function as S12.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#E8FDF8;color:#007A64;">S14</span></td>
+          <td><div class="screen-name">Action Protocol</div><div class="screen-desc">AI-generated step-by-step action plan for a specific health situation (e.g., "Ramesh's HbA1c is high — here's what to do"). Numbered steps, each with an icon and plain-language instruction.</div></td>
+          <td><span class="route">/(tabs)/ai/protocol</span></td>
+          <td class="entry-exit">"Action plan" chip in<br><code>S12</code> response</td>
+          <td class="entry-exit">Step tap → relevant feature<br>Back → <code>S12</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> Generated inline from the chat context. Steps can deep-link to Upload Doc, Add Medication, Book appointment, etc.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F6 — FAMILY HUB & CIRCLE -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f6">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#EFF6FF;">👨‍👩‍👧‍👦</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 6</div>
+        <div class="flow-name">Family Hub &amp; Circle</div>
+        <div class="flow-desc">Manage family members (add/view/edit), view individual health profiles, and connect with remote family via the Family Circle invite system. Critical alerts surface here and on the dashboard.</div>
+        <div class="flow-count">8 screens · Circle is a separate sub-flow</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S15</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S16</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#EF4444;">S17</span><span class="fp-branch"> (alert) |</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S41</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S42</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S43</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1D4ED8;">S44</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#1E40AF;">S45</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S15</span></td>
+          <td><div class="screen-name">Family Hub</div><div class="screen-desc">List of all family members. Each card shows avatar, name, age, conditions, health score grade badge, and latest alert if any. "Add member" CTA. "Family Circle" entry point.</div></td>
+          <td><span class="route">/(tabs)/family/</span></td>
+          <td class="entry-exit">Family tab tap<br>Dashboard "See all"</td>
+          <td class="entry-exit">Member card → <code>S16</code><br>"Circle" → <code>S41</code><br>"+" Add member → modal</td>
+          <td class="screen-desc"><span class="tag tag-tab">tab-root</span> Max 10 family members in v1. Alert badges overlay member cards for critical values.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S16</span></td>
+          <td><div class="screen-name">Member Detail — Ramesh</div><div class="screen-desc">Full health profile for one member. Score ring, conditions list, active medications summary, recent documents, and quick actions (Ask AI about Ramesh, Upload report for Ramesh).</div></td>
+          <td><span class="route">/(tabs)/family/[memberId]</span></td>
+          <td class="entry-exit">Member card on <code>S15</code><br>Dashboard member tap</td>
+          <td class="entry-exit">Score ring → <code>S05</code><br>"Docs" → <code>S09</code> filtered<br>"Meds" → <code>S18</code> filtered<br>"Ask AI" → <code>S12</code> with member context<br>Back → <code>S15</code></td>
+          <td class="screen-desc">Member name is dynamic. All feature navigation pre-filters to this member's data. "Edit" → edit member modal.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEE2E2;color:#B91C1C;">S17</span></td>
+          <td><div class="screen-name">Critical Value Alert</div><div class="screen-desc">Full-screen alert for a dangerously out-of-range biomarker (e.g., glucose > 400). Red header. Clear explanation of what the value means and what action to take. Not dismissable without tapping an action.</div></td>
+          <td><span class="route">/(tabs)/family/alert/[alertId]</span></td>
+          <td class="entry-exit">Push notification tap<br>Auto-surface on doc analysis<br>Alert badge tap on <code>S15</code></td>
+          <td class="entry-exit">"View full report" → <code>S11</code><br>"Ask AI" → <code>S12</code><br>"Dismiss" → <code>S15</code></td>
+          <td class="screen-desc"><span class="tag tag-deeplink">push-notif</span> Triggered by <code>generate-health-score</code> edge fn when a Grade D value is found. Requires explicit user action to dismiss.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S41</span></td>
+          <td><div class="screen-name">Family Circle Hub</div><div class="screen-desc">Manage linked (remote) family connections. Shows pending requests, active links, and linked member health snapshots. Entry point for sending and managing invites.</div></td>
+          <td><span class="route">/(tabs)/family/circle</span></td>
+          <td class="entry-exit">"Circle" on <code>S15</code></td>
+          <td class="entry-exit">"Invite" → <code>S42</code><br>Pending request → <code>S44</code><br>Linked member → <code>S45</code><br>Back → <code>S15</code></td>
+          <td class="screen-desc">Linked members can view but not edit. Requests require approval before data access is granted.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S42</span></td>
+          <td><div class="screen-name">Send Invite</div><div class="screen-desc">Generate an invite link for a family member to connect via Circle. Choose which data to share (full / summary only / emergency only). Copy link or share via WhatsApp.</div></td>
+          <td><span class="route">/(tabs)/family/circle/invite</span></td>
+          <td class="entry-exit">"Invite" on <code>S41</code></td>
+          <td class="entry-exit">On link sent → <code>S41</code><br>Cancel → <code>S41</code></td>
+          <td class="screen-desc"><span class="tag tag-modal">modal</span> Link generated via <code>circle-invite-create</code> edge fn. Token expires in 72 hours.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S43</span></td>
+          <td><div class="screen-name">Join via Invite Link — Recipient</div><div class="screen-desc">Screen shown to the person who receives the Circle invite link. Shows who is inviting them, what data will be shared, and prompts login/sign-up before accepting.</div></td>
+          <td><span class="route">/(circle-invite)/[token]</span></td>
+          <td class="entry-exit">Tapping invite link<br>(deep-link / WhatsApp)</td>
+          <td class="entry-exit">"Accept" → <code>S03b</code> (if not logged in) → <code>S44</code><br>"Decline" → closes</td>
+          <td class="screen-desc"><span class="tag tag-deeplink">deep-link</span> Handled by <code>circle-invite-redeem</code> edge fn. If user is already logged in, skips login and goes straight to S44.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S44</span></td>
+          <td><div class="screen-name">Manage Requests</div><div class="screen-desc">List of incoming Circle access requests. Each shows requester name, relationship claimed, and data tier requested. Approve or deny with one tap.</div></td>
+          <td><span class="route">/(tabs)/family/circle/requests</span></td>
+          <td class="entry-exit"><code>S41</code> pending requests<br><code>S43</code> after recipient accepts</td>
+          <td class="entry-exit">Approve → <code>S45</code><br>Deny → stays on <code>S44</code><br>Back → <code>S41</code></td>
+          <td class="screen-desc">Approved connections appear in S41's linked member list. Denied requests are permanently removed.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#DBEAFE;color:#1D4ED8;">S45</span></td>
+          <td><div class="screen-name">Linked Family View — Read-Only</div><div class="screen-desc">Health snapshot of a linked (remote) family member. Same card layout as S16 but read-only. Cannot add docs or meds on behalf of a linked member.</div></td>
+          <td><span class="route">/(tabs)/family/circle/[linkId]</span></td>
+          <td class="entry-exit">Linked member tap on <code>S41</code><br>Approved request on <code>S44</code></td>
+          <td class="entry-exit">Score ring → <code>S05</code> (read-only)<br>"Ask AI" → <code>S12</code><br>Back → <code>S41</code></td>
+          <td class="screen-desc"><span class="tag tag-system">read-only</span> Data access limited to what was approved in S42/S44. "Ask AI" uses this member's accessible data as context.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F7 — MEDICATIONS -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f7">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#FEF3C7;">💊</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 7</div>
+        <div class="flow-name">Medications</div>
+        <div class="flow-desc">Track all medications across family members. View schedule, log doses as taken, and add new medications. Reminder push notifications come from this data. Add is a full-screen modal.</div>
+        <div class="flow-count">3 screens · Meds is a bottom nav tab</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-id" style="background:#D4A017;">S18</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#B8891A;">S19</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#92691A;">S33</span><span class="fp-branch"> (add new)</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#FEF3C7;color:#92400E;">S18</span></td>
+          <td><div class="screen-name">Medications List</div><div class="screen-desc">All active medications across family members. Today's schedule at top (due now / upcoming / taken). Full list below. Each row: drug name, dose, frequency, member name, next reminder. "Take" button marks dose as logged.</div></td>
+          <td><span class="route">/(tabs)/medications/</span></td>
+          <td class="entry-exit">Meds tab tap<br>Dashboard reminder card<br>Push notification</td>
+          <td class="entry-exit">Med row → <code>S19</code><br>"+" → <code>S33</code><br>Member filter</td>
+          <td class="screen-desc"><span class="tag tag-tab">tab-root</span> <span class="tag tag-deeplink">push-notif</span> "Take" writes a row to <code>medication_logs</code>. FlashList. Today-section is always pinned to top. Filter by member across the top.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEF3C7;color:#92400E;">S19</span></td>
+          <td><div class="screen-name">Medication Detail</div><div class="screen-desc">Full info for one medication. Name, dose, member, prescribing doctor, start/end date, instructions (with food, avoid alcohol, etc.), full schedule. Log history (last 30 days). Edit and delete options.</div></td>
+          <td><span class="route">/(tabs)/medications/[medId]</span></td>
+          <td class="entry-exit">Med row on <code>S18</code><br>Dashboard reminder tap</td>
+          <td class="entry-exit">"Edit" → <code>S33</code> pre-filled<br>"Ask AI about this med" → <code>S12</code><br>Back → <code>S18</code></td>
+          <td class="screen-desc">Adherence chart shows last 30 days (taken / missed). Delete prompts confirmation. "Check drug interactions" uses <code>check-drug-interactions</code> edge fn.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#FEF3C7;color:#92400E;">S33</span></td>
+          <td><div class="screen-name">Add Medication</div><div class="screen-desc">Full-screen modal. Fields: medication name (with autocomplete), dose amount + unit, frequency (once/twice/thrice daily, weekly, as needed), member picker, time(s) of day, start date, doctor name, notes. Preview of reminder schedule before save.</div></td>
+          <td><span class="route">/(tabs)/medications/add</span></td>
+          <td class="entry-exit">"+" on <code>S18</code><br>"Edit" from <code>S19</code><br>AI action protocol chip</td>
+          <td class="entry-exit">Save → <code>S18</code><br>Cancel → <code>S18</code> or <code>S19</code></td>
+          <td class="screen-desc"><span class="tag tag-modal">modal</span> Autocomplete from standard Indian drug name database. Preview shows next 3 reminder times. <code>send-push-notification</code> edge fn registers reminders on save.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- F8 — MORE & UTILITIES -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="flow-section" id="f8">
+    <div class="flow-header">
+      <div class="flow-icon" style="background:#F0FDF4;">⚙️</div>
+      <div class="flow-meta">
+        <div class="flow-label">Flow 8</div>
+        <div class="flow-name">More &amp; Utilities</div>
+        <div class="flow-desc">The "More" tab expands into the secondary features: timeline, insights, emergency card, doctor network, protocol, settings, and membership. The emergency card is available offline.</div>
+        <div class="flow-count">9 screens · Accessed from "More" tab menu</div>
+      </div>
+    </div>
+    <div class="flow-path">
+      <div class="fp-step"><span class="fp-branch">More tab →</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S20</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S21</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S22</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S23</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S28</span><span class="fp-branch"> or</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S24</span><span class="fp-arrow">→</span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S25</span><span class="fp-branch"> / </span></div>
+      <div class="fp-step"><span class="fp-id" style="background:#374151;">S26</span></div>
+    </div>
+    <table class="screen-table">
+      <thead>
+        <tr>
+          <th class="col-id">ID</th>
+          <th class="col-name">Screen</th>
+          <th class="col-route">Route</th>
+          <th class="col-entry">Entry from</th>
+          <th class="col-exit">Exits to</th>
+          <th class="col-notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S20</span></td>
+          <td><div class="screen-name">Health Timeline</div><div class="screen-desc">Chronological feed of all health events: documents uploaded, biomarker readings, medication changes, score changes, and AI notes. Filterable by member and event type.</div></td>
+          <td><span class="route">/(more)/timeline</span></td>
+          <td class="entry-exit">More → Timeline</td>
+          <td class="entry-exit">Event tap → relevant screen (<code>S11</code>, <code>S08</code>, <code>S19</code>)<br>Back → More</td>
+          <td class="screen-desc">FlashList with infinite scroll. Tapping any event deep-links to the source record. Filter chips: All / Docs / Meds / Score / AI.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S21</span></td>
+          <td><div class="screen-name">Health Insights</div><div class="screen-desc">AI-generated cross-document insight cards. Patterns spotted across multiple reports (e.g., "Ramesh's HbA1c has risen 3 times in 12 months"). Each card has a severity badge and an action chip.</div></td>
+          <td><span class="route">/(more)/insights</span></td>
+          <td class="entry-exit">More → Insights</td>
+          <td class="entry-exit">Insight card → <code>S12</code> (contextual)<br>Action chip → <code>S11</code> / <code>S33</code><br>Back → More</td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> <span class="tag tag-premium">premium</span> Generated by <code>generate-health-insights</code> edge fn. Requires ≥2 reports for cross-document patterns. Cached 24h.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S22</span></td>
+          <td><div class="screen-name">Emergency Card</div><div class="screen-desc">Critical medical info for the selected member: blood type, allergies, conditions, current medications, emergency contact, and QR code that links to the public emergency page. Available offline.</div></td>
+          <td><span class="route">/(more)/emergency</span></td>
+          <td class="entry-exit">More → Emergency<br>Dashboard quick-action<br>Push-notif deep-link</td>
+          <td class="entry-exit">QR → public web URL<br>Edit → edit modal<br>Back → More</td>
+          <td class="screen-desc"><span class="tag tag-offline">offline</span> Cached to MMKV on every update. Works without internet. QR links to <code>prakrit.ai/emergency/[token]</code>. Hospital staff scan the QR — no app needed.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S23</span></td>
+          <td><div class="screen-name">Doctor Network</div><div class="screen-desc">List of enrolled doctors on PrakritAI. Each card shows name, specialty, hospital, and enrolled status. Search by specialty or name. "Connect with Dr. X" sends a connection request.</div></td>
+          <td><span class="route">/(more)/doctors</span></td>
+          <td class="entry-exit">More → Doctors</td>
+          <td class="entry-exit">Doctor card → <code>S28</code><br>Back → More</td>
+          <td class="screen-desc">12 doctors enrolled currently. Search is client-side (pre-fetched list).</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S28</span></td>
+          <td><div class="screen-name">Doctor Profile</div><div class="screen-desc">Full profile for an enrolled doctor. Specialty, qualifications, hospital, languages spoken, and any shared reports with this doctor.</div></td>
+          <td><span class="route">/(more)/doctors/[doctorId]</span></td>
+          <td class="entry-exit">Doctor card on <code>S23</code></td>
+          <td class="entry-exit">Back → <code>S23</code></td>
+          <td class="screen-desc">Doctor's shared reports listed at bottom of profile. Tapping a shared report goes to S11.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S29</span></td>
+          <td><div class="screen-name">Personalized Protocol</div><div class="screen-desc">AI-generated 30-day health protocol for a family member based on their biomarker history and conditions. Sections: Diet, Exercise, Medications, Monitoring schedule. Downloadable as PDF.</div></td>
+          <td><span class="route">/(more)/protocol</span></td>
+          <td class="entry-exit">More → Protocol<br>AI action chip in <code>S12</code></td>
+          <td class="entry-exit">"Download PDF" → share sheet<br>"Ask AI about this" → <code>S12</code><br>Back → More</td>
+          <td class="screen-desc"><span class="tag tag-premium">AI</span> <span class="tag tag-premium">premium</span> Generated by <code>generate-protocol</code> edge fn. Refreshed monthly or on new document upload. Medical disclaimer required.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S24</span></td>
+          <td><div class="screen-name">Profile &amp; Settings</div><div class="screen-desc">Account settings: profile photo, name, phone, email, notification preferences (per-member, per-med, per-insight), biometric auth toggle, language (EN / HI), dark mode, privacy settings, and log out.</div></td>
+          <td><span class="route">/(more)/settings</span></td>
+          <td class="entry-exit">More → Settings</td>
+          <td class="entry-exit">"Membership" → <code>S25</code><br>Log out → <code>S03a</code><br>Back → More</td>
+          <td class="screen-desc">Notification prefs stored in Supabase <code>profiles</code> table. Biometric toggle writes to <code>expo-secure-store</code>. Language toggle applies immediately.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S25</span></td>
+          <td><div class="screen-name">Membership / Upgrade</div><div class="screen-desc">Subscription tiers: Free, Pro (₹X/month), Family (₹X/month). Feature comparison table. Current plan highlighted. "Upgrade" redirects to <code>prakrit.ai/upgrade</code> — no in-app payment on Android.</div></td>
+          <td><span class="route">/(more)/membership</span></td>
+          <td class="entry-exit">"Membership" in <code>S24</code><br>Premium feature gate</td>
+          <td class="entry-exit">"Upgrade" → external browser (<code>prakrit.ai/upgrade</code>)<br>Back → <code>S24</code></td>
+          <td class="screen-desc"><span class="tag tag-premium">premium</span> No in-app purchase flow on Android (Play Store policy). iOS can use IAP. Show "Current plan" badge on active tier. Restore purchases button.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#374151;">S26</span></td>
+          <td><div class="screen-name">Lock Screen / Notification</div><div class="screen-desc">System lock-screen notification card design for medication reminders, critical alerts, and health insight nudges. Tapping opens the relevant screen via deep-link.</div></td>
+          <td><span class="route">system (push notification)</span></td>
+          <td class="entry-exit">Scheduled push from<br><code>send-push-notification</code></td>
+          <td class="entry-exit">Tap → <code>S19</code> (med)<br>Tap → <code>S17</code> (critical)<br>Tap → <code>S21</code> (insight)</td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> <span class="tag tag-deeplink">deep-link</span> Not a navigable in-app screen — reference for notification card design only. Handled by <code>expo-notifications</code> + Expo Push API.</td>
+        </tr>
+        <tr>
+          <td><span class="sid" style="background:#F4F4F5;color:#9CA3AF;">S27</span></td>
+          <td><div class="screen-name">Deferred — Not Built</div><div class="screen-desc">ID S27 is reserved but no screen was designed for this slot. Candidate use: Doctor Chat / In-app message thread with an enrolled doctor. Deferred to a future phase.</div></td>
+          <td><span class="route">—</span></td>
+          <td class="entry-exit">—</td>
+          <td class="entry-exit">—</td>
+          <td class="screen-desc"><span class="tag tag-system">system</span> Placeholder only. Screen does not exist in the mockup file.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- EDGE FUNCTIONS REFERENCE -->
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:48px;">
+    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;">Supabase Edge Functions — Quick Reference</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--teal);">11 functions</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0;">
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">ai-health-assistant</div>
+        <div style="font-size:11px;color:var(--muted);">Chat with full family member context — S12, S13, S31</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">analyze-document</div>
+        <div style="font-size:11px;color:var(--muted);">Extract biomarker values from uploaded report — S10, S11</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">generate-health-score</div>
+        <div style="font-size:11px;color:var(--muted);">0–100 score + grade + category breakdown — S05, S04</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">generate-health-insights</div>
+        <div style="font-size:11px;color:var(--muted);">Cross-document trend analysis — S21, S30</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">generate-protocol</div>
+        <div style="font-size:11px;color:var(--muted);">30-day personalised health protocol — S29</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">check-drug-interactions</div>
+        <div style="font-size:11px;color:var(--muted);">Medication safety check — S19, S33</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">send-push-notification</div>
+        <div style="font-size:11px;color:var(--muted);">Expo Push API trigger for meds + alerts — S26, S33</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">circle-invite-create / redeem</div>
+        <div style="font-size:11px;color:var(--muted);">Generate + validate Circle invite tokens — S42, S43</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">emergency-public-page</div>
+        <div style="font-size:11px;color:var(--muted);">Public emergency info via QR, no auth — S22</div>
+      </div>
+      <div style="padding:13px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">whatsapp-webhook</div>
+        <div style="font-size:11px;color:var(--muted);">Twilio WhatsApp handler for nudges + reminders</div>
+      </div>
+      <div style="padding:13px 24px;border-right:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink);margin-bottom:3px;">compare-health-reports</div>
+        <div style="font-size:11px;color:var(--muted);">Multi-report comparison — S30</div>
+      </div>
+      <div style="padding:13px 24px;">
+        <div style="font-size:11px;color:var(--faint);font-style:italic;">Full specs in docs/product/PRD.md § 11</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- FOOTER -->
+<div class="footer-strip">
+  <div>
+    <div class="brand">Prakrit<span>AI</span></div>
+    <p style="margin-top:4px;">prakrit.ai — your family's health intelligence</p>
+  </div>
+  <div>
+    <p>Screen Inventory v1.1 · July 2026</p>
+    <p>Reference mockup: docs/design/mockups/Screens-Clinical-44.html</p>
+  </div>
+  <div style="text-align:right;">
+    <p>43 screens · 8 flows</p>
+    <p>Built by PrakritAI · Pratik Gade</p>
+  </div>
+</div>
+
+</body>
+</html>
