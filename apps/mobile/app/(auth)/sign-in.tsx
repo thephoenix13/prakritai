@@ -59,11 +59,9 @@ export default function SignInScreen() {
   }
 
   async function handleSignIn() {
-    const identifier = phone.trim() || email.trim();
-    if (!identifier || !password) {
-      Alert.alert('Missing fields', 'Enter your phone/email and password.');
-      return;
-    }
+    // TODO: restore auth — navigating to profile setup for testing
+    router.push('/(onboarding)/profile-setup');
+    return;
     try {
       setLoading(true);
       const emailValue = phone.trim()
