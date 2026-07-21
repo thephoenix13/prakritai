@@ -14,7 +14,14 @@ LogBox.ignoreLogs([
   'expo-notifications',
   'Push notifications',
   'expo-notifications: Android Push notifications',
+  'Route',
+  'missing the required default export',
+  'packages should be updated',
 ]);
+// In dev, also suppress yellow LogBox banner entirely so UI is always interactive
+if (__DEV__) {
+  LogBox.ignoreAllLogs();
+}
 import { AuthContext } from '../lib/auth-context';
 import { registerForPushNotifications, savePushTokenToProfile } from '../lib/notifications';
 import type { Session } from '@supabase/supabase-js';

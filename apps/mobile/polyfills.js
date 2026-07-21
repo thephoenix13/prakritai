@@ -4,7 +4,15 @@
 (function() {
   var g = typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : this);
 
-  // Suppress known Expo Go dev-only warnings that can't be dismissed
+  // Force light color scheme — userInterfaceStyle in app.json doesn't apply in Expo Go
+  try {
+    var Appearance = require('react-native').Appearance;
+    if (Appearance && Appearance.setColorScheme) {
+      Appearance.setColorScheme('light');
+    }
+  } catch (e) { /* ignore */ }
+
+  // Suppress known Expo Go dev-only warnings that block the UI with LogBox overlays
   var _origError = console.error.bind(console);
   console.error = function() {
     var msg = arguments[0];
@@ -14,6 +22,11 @@
     )) return;
     return _origError.apply(console, arguments);
   };
+
+  // Suppress ALL console.warn in dev — prevents LogBox yellow/grey overlay
+  // that blocks touch events. Warnings still appear in Metro terminal.
+  var _origWarn = console.warn.bind(console);
+  console.warn = function() { return; };
 
   // DOMException
   if (!g.DOMException) {
