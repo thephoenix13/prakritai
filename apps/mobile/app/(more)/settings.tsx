@@ -15,12 +15,21 @@ import {
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { MMKV } from 'react-native-mmkv';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth-context';
 
-// ─── MMKV instance ────────────────────────────────────────────────────────────
-const storage = new MMKV();
+// ─── MMKV with AsyncStorage fallback (MMKV requires native dev build) ─────────
+let storage: { getString: (k: string) => string | undefined; set: (k: string, v: string) => void };
+try {
+  const { MMKV } = require('react-native-mmkv');
+  storage = new MMKV();
+} catch {
+  const _store: Record<string, string> = {};
+  storage = {
+    getString: (k: string) => _store[k],
+    set: (k: string, v: string) => { _store[k] = v; },
+  };
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NotificationPrefs {

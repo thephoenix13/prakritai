@@ -1,46 +1,69 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// expo-notifications push notifications are NOT supported in Expo Go (SDK 53+).
+// Use lazy require so the import doesn't crash at module load time.
+type Notifications = typeof import('expo-notifications');
+function getNotifications(): Notifications | null {
+  try {
+    return require('expo-notifications') as Notifications;
+  } catch {
+    return null;
+  }
+}
+
+const N = getNotifications();
+
+if (N) {
+  try {
+    N.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  } catch {
+    // Silently ignore in Expo Go
+  }
+}
 
 export async function registerForPushNotifications(): Promise<string | null> {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('medications', {
-      name: 'Medication Reminders',
-      importance: Notifications.AndroidImportance.HIGH,
-      sound: 'default',
-      vibrationPattern: [0, 250, 250, 250],
-    });
-    await Notifications.setNotificationChannelAsync('health-alerts', {
-      name: 'Health Alerts',
-      importance: Notifications.AndroidImportance.MAX,
-      sound: 'default',
-    });
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'General',
-      importance: Notifications.AndroidImportance.DEFAULT,
-    });
+  if (!N) return null;
+  try {
+    if (Platform.OS === 'android') {
+      await N.setNotificationChannelAsync('medications', {
+        name: 'Medication Reminders',
+        importance: N.AndroidImportance.HIGH,
+        sound: 'default',
+        vibrationPattern: [0, 250, 250, 250],
+      });
+      await N.setNotificationChannelAsync('health-alerts', {
+        name: 'Health Alerts',
+        importance: N.AndroidImportance.MAX,
+        sound: 'default',
+      });
+      await N.setNotificationChannelAsync('default', {
+        name: 'General',
+        importance: N.AndroidImportance.DEFAULT,
+      });
+    }
+
+    const { status: existing } = await N.getPermissionsAsync();
+    let finalStatus = existing;
+
+    if (existing !== 'granted') {
+      const { status } = await N.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') return null;
+
+    const token = (await N.getExpoPushTokenAsync()).data;
+    return token;
+  } catch {
+    return null;
   }
-
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  let finalStatus = existing;
-
-  if (existing !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') return null;
-
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
-  return token;
 }
 
 export async function savePushTokenToProfile(token: string) {
@@ -52,7 +75,6 @@ export async function savePushTokenToProfile(token: string) {
     .eq('id', session.user.id);
 }
 
-// Schedule a local notification for a medication dose
 export async function scheduleMedicationReminder(params: {
   medicationId: string;
   medicationName: string;
@@ -60,12 +82,10 @@ export async function scheduleMedicationReminder(params: {
   hour: number;
   minute: number;
 }) {
+  if (!N) return null;
   const identifier = `med-${params.medicationId}-${params.hour}${params.minute}`;
-
-  // Cancel existing notification with this ID first
-  await Notifications.cancelScheduledNotificationAsync(identifier).catch(() => {});
-
-  await Notifications.scheduleNotificationAsync({
+  await N.cancelScheduledNotificationAsync(identifier).catch(() => {});
+  await N.scheduleNotificationAsync({
     identifier,
     content: {
       title: `Time for ${params.medicationName}`,
@@ -78,22 +98,23 @@ export async function scheduleMedicationReminder(params: {
       hour: params.hour,
       minute: params.minute,
       repeats: true,
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      type: N.SchedulableTriggerInputTypes.DAILY,
     },
   });
-
   return identifier;
 }
 
 export async function cancelMedicationReminder(medicationId: string, hour: number, minute: number) {
+  if (!N) return;
   const identifier = `med-${medicationId}-${hour}${minute}`;
-  await Notifications.cancelScheduledNotificationAsync(identifier).catch(() => {});
+  await N.cancelScheduledNotificationAsync(identifier).catch(() => {});
 }
 
 export async function cancelAllRemindersForMedication(medicationId: string) {
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  if (!N) return;
+  const scheduled = await N.getAllScheduledNotificationsAsync();
   const toCancel = scheduled.filter((n) => n.identifier.startsWith(`med-${medicationId}-`));
-  await Promise.all(toCancel.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
+  await Promise.all(toCancel.map((n) => N!.cancelScheduledNotificationAsync(n.identifier)));
 }
 
 const SLOT_HOURS: Record<string, number> = {
@@ -122,4 +143,19 @@ export async function scheduleRemindersForMedication(params: {
       }),
     ),
   );
+}
+
+
+// expo-notifications push notifications are not supported in Expo Go (SDK 53+)
+// Local notification handlers still work
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+} catch {
+  // Silently ignore in Expo Go
 }

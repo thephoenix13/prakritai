@@ -11,13 +11,19 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { supabase } from '../../lib/supabase';
 
-GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB,
-  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS,
-});
+// Google Sign-In requires a native dev build — not available in Expo Go
+let GoogleSignin: any = null;
+try {
+  GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
+  GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS,
+  });
+} catch {
+  // Running in Expo Go — Google Sign-In unavailable
+}
 
 type Mode = 'sign-in' | 'sign-up';
 
@@ -31,6 +37,10 @@ export default function SignInScreen() {
   const [showEmailForm, setShowEmailForm] = useState(false);
 
   async function handleGoogleSignIn() {
+    if (!GoogleSignin) {
+      Alert.alert('Not available', 'Google Sign-In requires a development build. Use email/phone to sign in.');
+      return;
+    }
     try {
       setLoading(true);
       await GoogleSignin.hasPlayServices();
