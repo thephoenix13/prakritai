@@ -2,9 +2,9 @@ import { Platform } from 'react-native';
 import { supabase } from './supabase';
 
 // expo-notifications push notifications are NOT supported in Expo Go (SDK 53+).
-// Use lazy require so the import doesn't crash at module load time.
+// Use lazy require inside each function — never at module load time.
 type Notifications = typeof import('expo-notifications');
-function getNotifications(): Notifications | null {
+function N(): Notifications | null {
   try {
     return require('expo-notifications') as Notifications;
   } catch {
@@ -12,11 +12,11 @@ function getNotifications(): Notifications | null {
   }
 }
 
-const N = getNotifications();
-
-if (N) {
+export function setupNotificationHandler() {
+  const n = N();
+  if (!n) return;
   try {
-    N.setNotificationHandler({
+    n.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
         shouldPlaySound: true,
@@ -29,37 +29,37 @@ if (N) {
 }
 
 export async function registerForPushNotifications(): Promise<string | null> {
-  if (!N) return null;
+  const n = N(); if (!n) return null;
   try {
     if (Platform.OS === 'android') {
-      await N.setNotificationChannelAsync('medications', {
+      await n.setNotificationChannelAsync('medications', {
         name: 'Medication Reminders',
-        importance: N.AndroidImportance.HIGH,
+        importance: n.AndroidImportance.HIGH,
         sound: 'default',
         vibrationPattern: [0, 250, 250, 250],
       });
-      await N.setNotificationChannelAsync('health-alerts', {
+      await n.setNotificationChannelAsync('health-alerts', {
         name: 'Health Alerts',
-        importance: N.AndroidImportance.MAX,
+        importance: n.AndroidImportance.MAX,
         sound: 'default',
       });
-      await N.setNotificationChannelAsync('default', {
+      await n.setNotificationChannelAsync('default', {
         name: 'General',
-        importance: N.AndroidImportance.DEFAULT,
+        importance: n.AndroidImportance.DEFAULT,
       });
     }
 
-    const { status: existing } = await N.getPermissionsAsync();
+    const { status: existing } = await n.getPermissionsAsync();
     let finalStatus = existing;
 
     if (existing !== 'granted') {
-      const { status } = await N.requestPermissionsAsync();
+      const { status } = await n.requestPermissionsAsync();
       finalStatus = status;
     }
 
     if (finalStatus !== 'granted') return null;
 
-    const token = (await N.getExpoPushTokenAsync()).data;
+    const token = (await n.getExpoPushTokenAsync()).data;
     return token;
   } catch {
     return null;
@@ -82,10 +82,10 @@ export async function scheduleMedicationReminder(params: {
   hour: number;
   minute: number;
 }) {
-  if (!N) return null;
+  const n = N(); if (!n) return null;
   const identifier = `med-${params.medicationId}-${params.hour}${params.minute}`;
-  await N.cancelScheduledNotificationAsync(identifier).catch(() => {});
-  await N.scheduleNotificationAsync({
+  await n.cancelScheduledNotificationAsync(identifier).catch(() => {});
+  await n.scheduleNotificationAsync({
     identifier,
     content: {
       title: `Time for ${params.medicationName}`,
@@ -98,23 +98,23 @@ export async function scheduleMedicationReminder(params: {
       hour: params.hour,
       minute: params.minute,
       repeats: true,
-      type: N.SchedulableTriggerInputTypes.DAILY,
+      type: n.SchedulableTriggerInputTypes.DAILY,
     },
   });
   return identifier;
 }
 
 export async function cancelMedicationReminder(medicationId: string, hour: number, minute: number) {
-  if (!N) return;
+  const n = N(); if (!n) return;
   const identifier = `med-${medicationId}-${hour}${minute}`;
-  await N.cancelScheduledNotificationAsync(identifier).catch(() => {});
+  await n.cancelScheduledNotificationAsync(identifier).catch(() => {});
 }
 
 export async function cancelAllRemindersForMedication(medicationId: string) {
-  if (!N) return;
-  const scheduled = await N.getAllScheduledNotificationsAsync();
+  const n = N(); if (!n) return;
+  const scheduled = await n.getAllScheduledNotificationsAsync();
   const toCancel = scheduled.filter((n) => n.identifier.startsWith(`med-${medicationId}-`));
-  await Promise.all(toCancel.map((n) => N!.cancelScheduledNotificationAsync(n.identifier)));
+  await Promise.all(toCancel.map((n) => n!.cancelScheduledNotificationAsync(n.identifier)));
 }
 
 const SLOT_HOURS: Record<string, number> = {

@@ -3,11 +3,18 @@ import { useEffect, useState, useMemo } from 'react';
 import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { Platform } from 'react-native';
+import { Platform, LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { queryClient } from '../lib/queryClient';
+
+// Suppress known Expo Go dev-only warnings that block the UI
+LogBox.ignoreLogs([
+  'expo-notifications',
+  'Push notifications',
+  'expo-notifications: Android Push notifications',
+]);
 import { AuthContext } from '../lib/auth-context';
 import { registerForPushNotifications, savePushTokenToProfile } from '../lib/notifications';
 import type { Session } from '@supabase/supabase-js';
@@ -30,7 +37,7 @@ function AuthGate({ session, isLoading }: { session: Session | null; isLoading: 
     if (session) {
       if (inAuth || inOnboarding) router.replace('/(tabs)');
     } else {
-      if (!inAuth) router.replace('/(auth)/sign-in');
+      if (!inOnboarding && !inAuth) router.replace('/(onboarding)');
     }
   }, [session, isLoading, segments, navigationState?.key]);
 

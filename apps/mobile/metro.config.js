@@ -19,6 +19,7 @@ config.resolver.nodeModulesPaths = [
 // Stub out opentelemetry — Supabase imports it optionally but Metro can't bundle it on web
 config.resolver.extraNodeModules = {
   '@opentelemetry/api': path.resolve(projectRoot, 'opentelemetry-stub.js'),
+  'expo-notifications': path.resolve(projectRoot, 'expo-notifications-stub.js'),
 };
 
 // Force @tanstack packages to use their pre-built legacy output (no private fields)
