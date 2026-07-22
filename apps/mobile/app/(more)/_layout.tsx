@@ -8,6 +8,7 @@ export default function MoreLayout() {
       <Stack.Screen name="emergency" />
       <Stack.Screen name="protocol" />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="upgrade" />
       <Stack.Screen name="doctors" />
     </Stack>
   );

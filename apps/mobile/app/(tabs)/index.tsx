@@ -100,9 +100,10 @@ export default function HomeScreen() {
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: '#A1A1AA', marginBottom: 3 }}>{greet} 👋</Text>
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 26, color: '#09090B', letterSpacing: -0.5 }}>{USER.name}</Text>
             </View>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#00B894', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
+            <TouchableOpacity onPress={() => router.push('/(more)/settings')} activeOpacity={0.8}
+              style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#00B894', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: '#FFFFFF' }}>{USER.initial}</Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* Score + stats row */}
