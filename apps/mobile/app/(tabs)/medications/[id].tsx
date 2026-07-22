@@ -1,338 +1,166 @@
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { useMedication } from '../../../lib/queries/medications';
-import { supabase } from '../../../lib/supabase';
-import { useAuth } from '../../../lib/auth-context';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
+import { MEDICATIONS_BY_ID, useMedications } from '../../../lib/data/medications';
 
-function useRecentMedLogs(medicationId: string | undefined) {
-  const { userId } = useAuth();
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  return useQuery({
-    queryKey: ['medication_logs', userId, 'recent', medicationId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('medication_logs')
-        .select('id, scheduled_time, status, taken_at')
-        .eq('medication_id', medicationId!)
-        .eq('user_id', userId!)
-        .gte('scheduled_time', thirtyDaysAgo)
-        .order('scheduled_time', { ascending: false })
-        .limit(14);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!userId && !!medicationId,
-    staleTime: 1000 * 60,
+// ─── 30-day adherence calendar ─────────────────────────────────────────────────
+function AdherenceGrid({ adherence }: { adherence: number }) {
+  const days = Array.from({ length: 30 }, (_, i) => {
+    // Simulate taken/missed based on adherence %
+    return Math.random() * 100 < adherence;
   });
-}
-
-export default function MedicationDetail() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  const medQuery  = useMedication(id);
-  const logsQuery = useRecentMedLogs(id);
-
-  const med  = medQuery.data;
-  const logs = logsQuery.data ?? [];
-
-  const memberName = (med as any)?.family_members?.name as string | undefined;
-
-  const taken = logs.filter((l: any) => l.status === 'taken').length;
-  const adherencePct = logs.length > 0 ? Math.round((taken / logs.length) * 100) : null;
-
-  const startDateStr = med?.start_date
-    ? new Date(med.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    : '—';
-
-  const endDateStr = med?.end_date
-    ? new Date(med.end_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    : 'Ongoing';
-
-  const handleEdit = useCallback(() => {
-    router.push(`/(tabs)/medications/edit/${id}` as any);
-  }, [router, id]);
-
-  if (medQuery.isLoading) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <ActivityIndicator size="large" color="#00B894" />
-      </View>
-    );
-  }
-
-  if (!med) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <Text style={styles.errorText}>Medication not found.</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backLink}>
-          <Text style={styles.backLinkText}>← Go back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const timesOfDay: string[] = Array.isArray(med.times_of_day) ? med.times_of_day : [];
-
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-
-      <View style={styles.topNav}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.navTitle} numberOfLines={1}>{med.name}</Text>
-        <TouchableOpacity onPress={handleEdit}>
-          <Text style={styles.navCta}>Edit</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-
-        {/* ── Hero card ── */}
-        <View style={styles.heroCard}>
-          <View style={styles.medIconBox}>
-            <Text style={{ fontSize: 28 }}>💊</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.medName}>{med.name}{med.dosage ? ` ${med.dosage}` : ''}</Text>
-            {memberName && <Text style={styles.medMeta}>For {memberName}</Text>}
-            {med.frequency && <Text style={styles.medFreq}>{med.frequency}</Text>}
-          </View>
-          {!med.is_active && (
-            <View style={styles.inactiveBadge}>
-              <Text style={styles.inactiveBadgeText}>Inactive</Text>
-            </View>
-          )}
-        </View>
-
-        {/* ── Adherence ring ── */}
-        {adherencePct !== null && (
-          <View style={styles.adherenceCard}>
-            <View style={styles.adherenceLeft}>
-              <Text style={styles.adherenceNum}>{adherencePct}%</Text>
-              <Text style={styles.adherenceLabel}>30-day adherence</Text>
-            </View>
-            <View style={styles.adherenceBar}>
-              <View style={styles.adherenceBarBg}>
-                <View
-                  style={[
-                    styles.adherenceBarFill,
-                    {
-                      width: `${adherencePct}%` as any,
-                      backgroundColor: adherencePct >= 80 ? '#00B894' : adherencePct >= 50 ? '#D4A017' : '#EF4444',
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.adherenceCount}>{taken} of {logs.length} doses taken</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Schedule ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Schedule</Text>
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoKey}>Frequency</Text>
-              <Text style={styles.infoVal}>{med.frequency ?? '—'}</Text>
-            </View>
-            {timesOfDay.length > 0 && (
-              <View style={[styles.infoRow, styles.infoBorder]}>
-                <Text style={styles.infoKey}>Times</Text>
-                <Text style={styles.infoVal}>{timesOfDay.join(' · ')}</Text>
-              </View>
-            )}
-            {med.with_food && (
-              <View style={[styles.infoRow, styles.infoBorder]}>
-                <Text style={styles.infoKey}>With food</Text>
-                <Text style={styles.infoVal}>{med.with_food}</Text>
-              </View>
-            )}
-            <View style={[styles.infoRow, styles.infoBorder]}>
-              <Text style={styles.infoKey}>Started</Text>
-              <Text style={styles.infoVal}>{startDateStr}</Text>
-            </View>
-            <View style={[styles.infoRow, styles.infoBorder]}>
-              <Text style={styles.infoKey}>Until</Text>
-              <Text style={styles.infoVal}>{endDateStr}</Text>
-            </View>
-            {med.form && (
-              <View style={[styles.infoRow, styles.infoBorder]}>
-                <Text style={styles.infoKey}>Form</Text>
-                <Text style={styles.infoVal}>{med.form}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* ── Notes / Instructions ── */}
-        {med.notes && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Instructions</Text>
-            <View style={styles.notesCard}>
-              <Text style={styles.notesText}>{med.notes}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Recent log ── */}
-        {logs.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Adherence</Text>
-            {logs.map((entry: any) => {
-              const isTaken = entry.status === 'taken';
-              const dateStr = new Date(entry.scheduled_time).toLocaleDateString('en-IN', {
-                day: 'numeric', month: 'short',
-              });
-              const timeStr = new Date(entry.scheduled_time).toLocaleTimeString('en-IN', {
-                hour: '2-digit', minute: '2-digit', hour12: true,
-              });
-              return (
-                <View key={entry.id} style={styles.logRow}>
-                  <View
-                    style={[styles.logDot, { backgroundColor: isTaken ? '#00B894' : '#F4F4F5', borderColor: isTaken ? '#00B894' : '#E4E4E7' }]}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.logDate}>{dateStr} · {timeStr}</Text>
-                  </View>
-                  <View style={[styles.logBadge, { backgroundColor: isTaken ? '#CCFBF1' : '#FEE2E2' }]}>
-                    <Text style={[styles.logBadgeText, { color: isTaken ? '#00725E' : '#b91c1c' }]}>
-                      {isTaken ? 'Taken' : 'Missed'}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        )}
-
-        <Text style={styles.disclaimer}>
-          Prakrit AI is not a substitute for professional medical advice, diagnosis, or treatment.
-        </Text>
-
-        <View style={{ height: 32 }} />
-      </ScrollView>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+      {days.map((taken, i) => (
+        <View key={i} style={{
+          width: 18, height: 18, borderRadius: 4,
+          backgroundColor: taken ? '#00B894' : '#FEE2E2',
+        }} />
+      ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#FAFAFA' },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  errorText: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B', marginBottom: 12 },
-  backLink: { marginTop: 8 },
-  backLinkText: { fontFamily: 'Inter-Medium', fontSize: 14, color: '#00B894' },
+export default function MedicationDetailScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const med = MEDICATIONS_BY_ID[id ?? 'metformin'] ?? MEDICATIONS_BY_ID['metformin'];
+  const { isTaken, toggle } = useMedications();
 
-  topNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
-    paddingBottom: 12,
-    backgroundColor: '#FAFAFA',
-  },
-  backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#09090B' },
-  navTitle: {
-    fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B',
-    flex: 1, textAlign: 'center', marginHorizontal: 8,
-  },
-  navCta: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#00B894' },
-  content: { paddingHorizontal: 20 },
+  const handleToggle = useCallback((doseId: string) => toggle(doseId), [toggle]);
 
-  heroCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    marginBottom: 12,
-  },
-  medIconBox: { width: 56, height: 56, borderRadius: 14, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' },
-  medName: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 17, color: '#09090B' },
-  medMeta: { fontFamily: 'Inter-Regular', fontSize: 12, color: '#71717A', marginTop: 2 },
-  medFreq: { fontFamily: 'Inter-Medium', fontSize: 12, color: '#00B894', marginTop: 4 },
-  inactiveBadge: { backgroundColor: '#F4F4F5', borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 },
-  inactiveBadgeText: { fontFamily: 'Inter-Medium', fontSize: 11, color: '#71717A' },
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 2, paddingBottom: 14 }}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke="#09090B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: '#09090B', letterSpacing: -0.2 }}>{med.name}</Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 1 }}>{med.member}</Text>
+        </View>
+        <TouchableOpacity activeOpacity={0.7}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+            <Path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M16 6l-4-4-4 4" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M12 2v13" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </TouchableOpacity>
+      </View>
 
-  adherenceCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginBottom: 20,
-  },
-  adherenceLeft: { alignItems: 'center', minWidth: 60 },
-  adherenceNum: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 28, color: '#09090B' },
-  adherenceLabel: { fontFamily: 'Inter-Regular', fontSize: 10, color: '#71717A', textAlign: 'center', marginTop: 2 },
-  adherenceBar: { flex: 1 },
-  adherenceBarBg: { height: 8, backgroundColor: '#F4F4F5', borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
-  adherenceBarFill: { height: 8, borderRadius: 4 },
-  adherenceCount: { fontFamily: 'Inter-Regular', fontSize: 12, color: '#71717A' },
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 }}>
 
-  section: { marginBottom: 20 },
-  sectionTitle: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B', marginBottom: 10 },
+        {/* Info grid — 2×2 cards */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+          {/* Dose */}
+          <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#F4F4F5', borderRadius: 12, padding: 13 }}>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginBottom: 4 }}>Dose</Text>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: '#09090B' }}>
+              {med.dose.replace(/[^\d.]+/, '')}<Text style={{ fontSize: 12, fontFamily: 'Inter-Regular' }}> {med.dose.replace(/[\d.]+\s*/, '')}</Text>
+            </Text>
+          </View>
+          {/* Frequency */}
+          <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#F4F4F5', borderRadius: 12, padding: 13 }}>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginBottom: 4 }}>Frequency</Text>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' }}>{med.frequency}</Text>
+          </View>
+          {/* Take with */}
+          <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#F4F4F5', borderRadius: 12, padding: 13 }}>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginBottom: 4 }}>Take with</Text>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' }}>{med.takeWith}</Text>
+          </View>
+          {/* Started */}
+          <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#F4F4F5', borderRadius: 12, padding: 13 }}>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginBottom: 4 }}>Started</Text>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' }}>{med.started}</Text>
+          </View>
+        </View>
 
-  infoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    overflow: 'hidden',
-  },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
-  infoBorder: { borderTopWidth: 1, borderTopColor: '#E4E4E7' },
-  infoKey: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#71717A' },
-  infoVal: { fontFamily: 'Inter-SemiBold', fontSize: 13, color: '#09090B', maxWidth: '60%', textAlign: 'right' },
+        {/* Today's log */}
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15, color: '#09090B', marginBottom: 10 }}>Today's log</Text>
+        <View style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, overflow: 'hidden', marginBottom: 16 }}>
+          {med.doses.map((dose, i) => {
+            const taken = isTaken(dose.id);
+            return (
+              <View key={dose.id} style={{
+                flexDirection: 'row', alignItems: 'center', gap: 12,
+                paddingHorizontal: 16, paddingVertical: 14,
+                borderBottomWidth: i < med.doses.length - 1 ? 1 : 0, borderBottomColor: '#E4E4E7',
+              }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13,
+                    color: taken ? '#A1A1AA' : '#09090B',
+                    textDecorationLine: taken ? 'line-through' : 'none' }}>
+                    {dose.label}
+                  </Text>
+                  <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: taken ? '#00B894' : '#71717A', marginTop: 2 }}>{dose.note}</Text>
+                </View>
+                <TouchableOpacity onPress={() => handleToggle(dose.id)} activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <View style={{
+                    width: 28, height: 28, borderRadius: 14,
+                    backgroundColor: taken ? '#00B894' : 'transparent',
+                    borderWidth: taken ? 0 : 1.5, borderColor: '#E4E4E7',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {taken && (
+                      <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                        <Path d="M20 6L9 17l-5-5" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                      </Svg>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
 
-  notesCard: {
-    backgroundColor: '#F4F4F5',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 14,
-  },
-  notesText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#09090B', lineHeight: 20 },
+        {/* Adherence */}
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15, color: '#09090B', marginBottom: 10 }}>Adherence — last 30 days</Text>
+        <View style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, padding: 16, marginBottom: 8 }}>
+          <AdherenceGrid adherence={med.adherence} />
+        </View>
+        <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 12, color: '#71717A', marginBottom: 16 }}>
+          {med.adherence}% adherence · {med.missedDoses} doses missed
+        </Text>
 
-  logRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 12,
-    marginBottom: 6,
-    gap: 10,
-  },
-  logDot: { width: 10, height: 10, borderRadius: 5, borderWidth: 1 },
-  logDate: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#71717A' },
-  logBadge: { borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 },
-  logBadgeText: { fontFamily: 'Inter-Medium', fontSize: 11 },
+        {/* AI note */}
+        <View style={{ backgroundColor: '#F4F4F5', borderRadius: 14, padding: 14, marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: '#00B894', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 9, color: '#FFFFFF' }}>P</Text>
+            </View>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 12, color: '#09090B' }}>Prakrit AI</Text>
+          </View>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: '#09090B', lineHeight: 20 }}>{med.aiNote}</Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 8 }}>
+            Prakrit AI is not a substitute for professional medical advice, diagnosis, or treatment.
+          </Text>
+        </View>
 
-  disclaimer: { fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', textAlign: 'center' },
-});
+      </ScrollView>
+
+      {/* Bottom actions */}
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 10, paddingHorizontal: 24, paddingBottom: 28, paddingTop: 12, backgroundColor: '#FAFAFA', borderTopWidth: 1, borderTopColor: '#E4E4E7' }}>
+        <TouchableOpacity activeOpacity={0.8}
+          style={{ flex: 1, height: 48, borderRadius: 13, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E4E4E7' }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' }}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.8}
+          onPress={() => { const dose = med.doses[0]; if (dose) handleToggle(dose.id); }}
+          style={{ flex: 2, height: 48, borderRadius: 13, backgroundColor: '#09090B', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#FFFFFF' }}>
+            {med.doses[0] && isTaken(med.doses[0].id) ? 'Mark as pending' : 'Mark taken'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}

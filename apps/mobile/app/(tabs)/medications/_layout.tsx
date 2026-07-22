@@ -1,11 +1,14 @@
 import { Stack } from 'expo-router';
+import { MedicationProvider } from '../../../lib/data/medications';
 
 export default function MedicationsLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="[id]" />
-      <Stack.Screen name="add" />
-    </Stack>
+    <MedicationProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="[id]" />
+        <Stack.Screen name="add" />
+      </Stack>
+    </MedicationProvider>
   );
 }

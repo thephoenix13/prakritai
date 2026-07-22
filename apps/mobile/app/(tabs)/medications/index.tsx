@@ -1,307 +1,140 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Avatar } from '../../../components/ui/Avatar';
-import { useMedications, useMarkMedicationTaken } from '../../../lib/queries/medications';
+import Svg, { Path, Line, Circle } from 'react-native-svg';
+import { MEDICATIONS, useMedications } from '../../../lib/data/medications';
 
-const TIME_LABEL_MAP: Record<string, string> = {
-  Morning: '8:00 AM',
-  Afternoon: '1:00 PM',
-  Evening: '6:00 PM',
-  Bedtime: '10:00 PM',
+const FILTERS = ['All (6)', 'Ramesh', 'Meera', 'Priya'];
+
+const MEMBER_FILTER: Record<string, string> = {
+  'Ramesh': 'Ramesh',
+  'Meera':  'Meera',
+  'Priya':  'Priya',
 };
 
-const MEMBER_COLORS = ['#00B894', '#D4A017', '#F472B6', '#60A5FA', '#A78BFA'];
+// Group doses by time slot
+const MORNING_IDS = MEDICATIONS.flatMap(m => m.doses.filter(d => d.time === 'morning').map(d => ({ med: m, dose: d })));
+const EVENING_IDS = MEDICATIONS.flatMap(m => m.doses.filter(d => d.time === 'evening').map(d => ({ med: m, dose: d })));
 
-function memberColor(name: string) {
-  let n = 0;
-  for (let i = 0; i < name.length; i++) n += name.charCodeAt(i);
-  return MEMBER_COLORS[n % MEMBER_COLORS.length];
+function Checkbox({ taken, onToggle }: { taken: boolean; onToggle: () => void }) {
+  return (
+    <TouchableOpacity onPress={onToggle} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+      <View style={{
+        width: 26, height: 26, borderRadius: 13,
+        backgroundColor: taken ? '#00B894' : 'transparent',
+        borderWidth: taken ? 0 : 1.5, borderColor: '#E4E4E7',
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        {taken && (
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+            <Path d="M20 6L9 17l-5-5" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
 }
 
-export default function Medications() {
+export default function MedicationsScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'today' | 'all'>('today');
-  const { data: medications, isLoading, error } = useMedications();
-  const markTaken = useMarkMedicationTaken();
+  const { isTaken, toggle } = useMedications();
+  const [activeFilter, setActiveFilter] = useState('All (6)');
 
-  const todaySchedule = (medications ?? []).flatMap((med) => {
-    const memberName = (med as any).family_members?.name ?? 'Unknown';
-    return (med.times_of_day ?? []).map((slot) => ({
-      medId: med.id,
-      medName: med.name,
-      familyMemberId: med.family_member_id,
-      memberName,
-      slot,
-      displayTime: TIME_LABEL_MAP[slot] ?? slot,
-      color: memberColor(memberName),
-    }));
-  });
+  const filterMember = MEMBER_FILTER[activeFilter];
 
-  const handleMarkTaken = useCallback(
-    async (medId: string, familyMemberId: string, slot: string) => {
-      const today = new Date().toISOString().split('T')[0];
-      const hour = parseInt(TIME_LABEL_MAP[slot]?.split(':')[0] ?? '8', 10);
-      const scheduledTime = `${today}T${String(hour).padStart(2, '0')}:00:00+00:00`;
-      try {
-        await markTaken.mutateAsync({ medicationId: medId, familyMemberId, scheduledTime });
-      } catch {
-        // silent — user sees no change
-      }
-    },
-    [markTaken],
-  );
+  const filterDoses = (items: typeof MORNING_IDS) =>
+    filterMember ? items.filter(({ med }) => med.member.startsWith(filterMember)) : items;
+
+  const morningItems = filterDoses(MORNING_IDS);
+  const eveningItems = filterDoses(EVENING_IDS);
+
+  const handleToggle = useCallback((doseId: string) => toggle(doseId), [toggle]);
 
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-
-      <View style={styles.header}>
-        <Text style={styles.title}>Medications</Text>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => router.push('/(tabs)/medications/add' as any)}
-        >
-          <Text style={styles.addBtnText}>+ Add</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 2, paddingBottom: 12 }}>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 26, color: '#09090B', letterSpacing: -0.5 }}>Medications</Text>
+        <TouchableOpacity activeOpacity={0.85}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#09090B', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+            <Line x1="12" y1="5" x2="12" y2="19" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
+            <Line x1="5" y1="12" x2="19" y2="12" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
+          </Svg>
         </TouchableOpacity>
       </View>
 
-      {/* Progress bar (today view only) */}
-      {activeTab === 'today' && todaySchedule.length > 0 && (
-        <View style={styles.progressCard}>
-          <View style={styles.progressTop}>
-            <Text style={styles.progressLabel}>Today's Schedule</Text>
-            <Text style={styles.progressValue}>{todaySchedule.length} dose{todaySchedule.length !== 1 ? 's' : ''}</Text>
-          </View>
-          <View style={styles.progressBar}>
-            <View style={styles.progressFill} />
-          </View>
-        </View>
-      )}
-
-      {/* Tab switch */}
-      <View style={styles.tabRow}>
-        {(['today', 'all'] as const).map((t) => (
-          <TouchableOpacity
-            key={t}
-            style={[styles.tab, activeTab === t && styles.tabActive]}
-            onPress={() => setActiveTab(t)}
-          >
-            <Text style={[styles.tabText, activeTab === t && styles.tabTextActive]}>
-              {t === 'today' ? "Today's Schedule" : 'All Medications'}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {/* Filter tabs */}
+      <View style={{ borderBottomWidth: 1, borderBottomColor: '#E4E4E7', marginBottom: 0 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, flexDirection: 'row' }}>
+          {FILTERS.map(f => (
+            <TouchableOpacity key={f} onPress={() => setActiveFilter(f)} activeOpacity={0.7}
+              style={{ paddingHorizontal: 14, paddingVertical: 10, marginRight: 2, position: 'relative' }}>
+              <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: activeFilter === f ? '#09090B' : '#A1A1AA' }}>{f}</Text>
+              {activeFilter === f && (
+                <View style={{ position: 'absolute', bottom: -1, left: 14, right: 14, height: 2, backgroundColor: '#09090B', borderRadius: 2 }} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
-      {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color="#00B894" size="large" />
-        </View>
-      ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>Could not load medications.</Text>
-        </View>
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          {activeTab === 'today' ? (
-            todaySchedule.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyTitle}>No medications scheduled</Text>
-                <Text style={styles.emptyText}>Add a medication to see today's schedule.</Text>
-                <TouchableOpacity
-                  style={styles.emptyBtn}
-                  onPress={() => router.push('/(tabs)/medications/add' as any)}
-                >
-                  <Text style={styles.emptyBtnText}>Add Medication</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              todaySchedule.map((item, idx) => (
-                <View key={`${item.medId}-${item.slot}-${idx}`} style={styles.scheduleRow}>
-                  <View style={[styles.colorBar, { backgroundColor: item.color }]} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.schedMed}>{item.medName}</Text>
-                    <Text style={styles.schedMeta}>{item.memberName} · {item.displayTime}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 24 }}>
+
+        {/* Morning */}
+        {morningItems.length > 0 && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 12, color: '#A1A1AA', letterSpacing: 0.5, marginBottom: 10 }}>MORNING · 8:00 AM</Text>
+            <View style={{ gap: 8 }}>
+              {morningItems.map(({ med, dose }) => (
+                <TouchableOpacity key={dose.id} activeOpacity={0.7}
+                  onPress={() => router.push(`/(tabs)/medications/${med.id}`)}
+                  style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, paddingHorizontal: 16 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isTaken(dose.id) ? '#E8FDF8' : '#FEF3C7', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 18 }}>💊</Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.checkBtn}
-                    onPress={() => handleMarkTaken(item.medId, item.familyMemberId, item.slot)}
-                  >
-                    <Text style={styles.checkBtnText}>Take</Text>
-                  </TouchableOpacity>
-                </View>
-              ))
-            )
-          ) : (
-            (medications ?? []).length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyTitle}>No medications yet</Text>
-                <Text style={styles.emptyText}>Add medications for your family members.</Text>
-                <TouchableOpacity
-                  style={styles.emptyBtn}
-                  onPress={() => router.push('/(tabs)/medications/add' as any)}
-                >
-                  <Text style={styles.emptyBtnText}>Add Medication</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: isTaken(dose.id) ? '#A1A1AA' : '#09090B',
+                      textDecorationLine: isTaken(dose.id) ? 'line-through' : 'none' }}>
+                      {med.name}
+                    </Text>
+                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>{med.sub}</Text>
+                  </View>
+                  <Checkbox taken={isTaken(dose.id)} onToggle={() => handleToggle(dose.id)} />
                 </TouchableOpacity>
-              </View>
-            ) : (
-              (medications ?? []).map((med) => {
-                const memberName = (med as any).family_members?.name ?? 'Unknown';
-                return (
-                  <TouchableOpacity
-                    key={med.id}
-                    style={styles.medCard}
-                    onPress={() => router.push(`/(tabs)/medications/${med.id}` as any)}
-                    activeOpacity={0.85}
-                  >
-                    <View style={styles.medTop}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.medName}>{med.name}</Text>
-                        <Text style={styles.medMeta}>
-                          {memberName} · {med.frequency}
-                        </Text>
-                        {med.notes && (
-                          <Text style={styles.medCondition} numberOfLines={1}>{med.notes}</Text>
-                        )}
-                      </View>
-                      <Avatar name={memberName} size={36} />
-                    </View>
-                    <View style={styles.timesRow}>
-                      {(med.times_of_day ?? []).map((t) => (
-                        <View key={t} style={styles.timePill}>
-                          <Text style={styles.timePillText}>{t}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })
-            )
-          )}
-          <View style={{ height: 24 }} />
-        </ScrollView>
-      )}
-    </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Evening */}
+        {eveningItems.length > 0 && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 12, color: '#A1A1AA', letterSpacing: 0.5, marginBottom: 10 }}>EVENING · 8:00 PM</Text>
+            <View style={{ gap: 8 }}>
+              {eveningItems.map(({ med, dose }) => (
+                <TouchableOpacity key={dose.id} activeOpacity={0.7}
+                  onPress={() => router.push(`/(tabs)/medications/${med.id}`)}
+                  style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, paddingHorizontal: 16 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isTaken(dose.id) ? '#E8FDF8' : '#FCE7F3', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 18 }}>💊</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: isTaken(dose.id) ? '#A1A1AA' : '#09090B',
+                      textDecorationLine: isTaken(dose.id) ? 'line-through' : 'none' }}>
+                      {med.name}
+                    </Text>
+                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>{med.sub}</Text>
+                  </View>
+                  <Checkbox taken={isTaken(dose.id)} onToggle={() => handleToggle(dose.id)} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#FAFAFA' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
-    paddingBottom: 8,
-  },
-  title: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 24, color: '#09090B' },
-  addBtn: {
-    backgroundColor: '#09090B',
-    borderRadius: 50,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  addBtnText: { fontFamily: 'Inter-SemiBold', fontSize: 13, color: '#FFFFFF' },
-
-  progressCard: {
-    marginHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    marginBottom: 12,
-  },
-  progressTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  progressLabel: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#09090B' },
-  progressValue: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#00B894' },
-  progressBar: { height: 8, backgroundColor: '#F4F4F5', borderRadius: 4, overflow: 'hidden' },
-  progressFill: { height: 8, width: '30%', backgroundColor: '#00B894', borderRadius: 4 },
-
-  tabRow: {
-    flexDirection: 'row',
-    marginHorizontal: 24,
-    backgroundColor: '#F4F4F5',
-    borderRadius: 10,
-    padding: 3,
-    marginBottom: 16,
-  },
-  tab: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  tabActive: { backgroundColor: '#FFFFFF' },
-  tabText: { fontFamily: 'Inter-Medium', fontSize: 13, color: '#71717A' },
-  tabTextActive: { color: '#09090B', fontFamily: 'Inter-SemiBold' },
-
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  errorText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#71717A' },
-
-  content: { paddingHorizontal: 24 },
-
-  emptyState: { alignItems: 'center', paddingVertical: 60, gap: 10 },
-  emptyTitle: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: '#09090B' },
-  emptyText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#71717A', textAlign: 'center' },
-  emptyBtn: {
-    marginTop: 8,
-    backgroundColor: '#09090B',
-    borderRadius: 13,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  emptyBtnText: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#FFFFFF' },
-
-  scheduleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    marginBottom: 8,
-    overflow: 'hidden',
-    gap: 12,
-    paddingRight: 14,
-    paddingVertical: 14,
-  },
-  colorBar: { width: 4, alignSelf: 'stretch' },
-  schedMed: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#09090B' },
-  schedMeta: { fontFamily: 'Inter-Regular', fontSize: 12, color: '#71717A', marginTop: 2 },
-  checkBtn: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  checkBtnText: { fontFamily: 'Inter-SemiBold', fontSize: 13, color: '#09090B' },
-
-  medCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    marginBottom: 12,
-  },
-  medTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  medName: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 15, color: '#09090B' },
-  medMeta: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#71717A', marginTop: 2 },
-  medCondition: { fontFamily: 'Inter-Medium', fontSize: 11, color: '#00B894', marginTop: 4 },
-  timesRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  timePill: {
-    backgroundColor: '#F4F4F5',
-    borderRadius: 50,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  timePillText: { fontFamily: 'Inter-Medium', fontSize: 11, color: '#71717A' },
-});
