@@ -56,13 +56,23 @@ export default function MedicationsScreen() {
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 2, paddingBottom: 12 }}>
         <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 26, color: '#09090B', letterSpacing: -0.5 }}>Medications</Text>
-        <TouchableOpacity activeOpacity={0.85}
-          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#09090B', alignItems: 'center', justifyContent: 'center' }}>
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-            <Line x1="12" y1="5" x2="12" y2="19" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
-            <Line x1="5" y1="12" x2="19" y2="12" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
-          </Svg>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {/* Bell — opens notification test screen */}
+          <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/(more)/notifications')}
+            style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', borderWidth: 1, borderColor: '#E4E4E7', alignItems: 'center', justifyContent: 'center' }}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#09090B" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </TouchableOpacity>
+          {/* Plus — add medication */}
+          <TouchableOpacity activeOpacity={0.85}
+            style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#09090B', alignItems: 'center', justifyContent: 'center' }}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Line x1="12" y1="5" x2="12" y2="19" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
+              <Line x1="5" y1="12" x2="19" y2="12" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
+            </Svg>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Filter tabs */}

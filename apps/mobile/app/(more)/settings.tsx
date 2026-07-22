@@ -149,6 +149,11 @@ export default function SettingsScreen() {
         <View style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, overflow: 'hidden', marginBottom: 4 }}>
           <SettingsRow
             icon={<Svg width={16} height={16} viewBox="0 0 24 24" fill="none"><Path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#71717A" strokeWidth={1.8} strokeLinecap="round" /></Svg>}
+            label="Notification preview"
+            sub="Test alerts on your lock screen"
+            onPress={() => router.push('/(more)/notifications')} />
+          <SettingsRow
+            icon={<Svg width={16} height={16} viewBox="0 0 24 24" fill="none"><Path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#71717A" strokeWidth={1.8} strokeLinecap="round" /></Svg>}
             label="Medication reminders"
             trailing={<Switch value={medReminders} onValueChange={setMedReminders} trackColor={{ true: '#00B894' }} thumbColor="#FFFFFF" />} />
           <SettingsRow

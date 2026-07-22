@@ -159,3 +159,32 @@ try {
 } catch {
   // Silently ignore in Expo Go
 }
+
+// ─── Send an immediate local notification (fires in 1 second) ─────────────────
+export async function sendImmediateNotification(params: {
+  title: string;
+  body: string;
+  channelId?: string; // 'medications' | 'health-alerts' | 'default'
+}): Promise<boolean> {
+  const n = N();
+  if (!n) return false;
+  try {
+    const { status } = await n.getPermissionsAsync();
+    if (status !== 'granted') {
+      const { status: newStatus } = await n.requestPermissionsAsync();
+      if (newStatus !== 'granted') return false;
+    }
+    await n.scheduleNotificationAsync({
+      content: {
+        title: params.title,
+        body: params.body,
+        sound: 'default',
+        ...(params.channelId && { categoryIdentifier: params.channelId }),
+      },
+      trigger: { seconds: 1, type: n.SchedulableTriggerInputTypes.TIME_INTERVAL },
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
