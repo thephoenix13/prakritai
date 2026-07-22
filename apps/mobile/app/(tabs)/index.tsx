@@ -18,8 +18,8 @@ const FAMILY = [
 ];
 
 const REMINDERS = [
-  { name: 'Metformin 500mg · Ramesh', time: '8:00 AM · With breakfast', done: true  },
-  { name: 'Telmisartan 40mg · Ramesh', time: '8:00 PM · Pending',        done: false },
+  { name: 'Metformin 500mg · Ramesh', time: '8:00 AM · With breakfast', done: true,  docId: '2' },
+  { name: 'Telmisartan 40mg · Ramesh', time: '8:00 PM · Pending',        done: false, docId: null },
 ];
 
 // ─── Score ring SVG ───────────────────────────────────────────────────────────
@@ -152,7 +152,9 @@ export default function HomeScreen() {
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15, color: '#09090B', marginBottom: 10 }}>Today's reminders</Text>
             <View style={{ gap: 8 }}>
               {REMINDERS.map((r, i) => (
-                <View key={i} style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 13, paddingHorizontal: 16 }}>
+                <TouchableOpacity key={i} activeOpacity={r.docId ? 0.7 : 1}
+                  onPress={() => r.docId && router.push(`/(tabs)/documents/${r.docId}`)}
+                  style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 13, paddingHorizontal: 16 }}>
                   <Text style={{ fontSize: 22 }}>💊</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: '#09090B' }}>{r.name}</Text>
@@ -165,7 +167,7 @@ export default function HomeScreen() {
                       </Svg>
                     )}
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </View>

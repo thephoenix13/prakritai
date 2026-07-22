@@ -5,6 +5,7 @@ export default function DocumentsLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="[id]" />
+      <Stack.Screen name="upload" />
     </Stack>
   );
 }

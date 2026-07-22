@@ -1,307 +1,119 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  ActivityIndicator,
-  Share,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useDocument } from '../../../lib/queries/documents';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
+import { DOCUMENTS_BY_ID } from '../../../lib/data/documents';
 
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  normal:     { bg: '#CCFBF1', text: '#00725E' },
-  borderline: { bg: '#FEF3C7', text: '#8a5e0a' },
-  high:       { bg: '#FEE2E2', text: '#b91c1c' },
-  low:        { bg: '#E0E7FF', text: '#3730a3' },
-  abnormal:   { bg: '#FEE2E2', text: '#b91c1c' },
+const GRADE_CFG: Record<string, { bg: string; color: string }> = {
+  A: { bg: '#CCFBF1', color: '#00725E' },
+  B: { bg: '#FEF3C7', color: '#8a5e0a' },
+  C: { bg: '#FCE7F3', color: '#be185d' },
+  D: { bg: '#FEE2E2', color: '#b91c1c' },
 };
 
-const DOC_ICON: Record<string, string> = {
-  'Lab Report': '🧪',
-  'Prescription': '💊',
-  'Scan': '🔬',
-  'Hospital Discharge': '🏥',
-  'Other': '📄',
-};
-
-export default function DocumentDetail() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: doc, isLoading, error } = useDocument(id);
-
-  const handleShare = async () => {
-    if (!doc) return;
-    try {
-      await Share.share({
-        title: doc.title,
-        message: `${doc.title}\n${doc.document_type ?? 'Document'}\nvia PrakritAI`,
-      });
-    } catch {
-      // user cancelled
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <ActivityIndicator size="large" color="#00B894" />
-      </View>
-    );
-  }
-
-  if (error || !doc) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <Text style={styles.errorText}>Document not found.</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backLink}>
-          <Text style={styles.backLinkText}>← Go back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const analysis = doc.ai_analysis as any;
-  const memberName = (doc as any).family_members?.name as string | undefined;
-  const dateStr = new Date(doc.created_at).toLocaleDateString('en-IN', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
-
-  const labValues: any[] = analysis?.lab_values ?? analysis?.findings ?? [];
-  const recommendations: string[] = Array.isArray(analysis?.recommendations)
-    ? analysis.recommendations
-    : [];
-  const docIcon = DOC_ICON[doc.document_type ?? 'Other'] ?? '📄';
-
+function GradeBadge({ grade }: { grade: string }) {
+  const c = GRADE_CFG[grade] ?? GRADE_CFG.A;
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-
-      <View style={styles.topNav}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.navTitle} numberOfLines={1}>{doc.document_type ?? 'Document'}</Text>
-        <TouchableOpacity onPress={handleShare}>
-          <Text style={styles.navCta}>Share</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-
-        {/* ── Hero card ── */}
-        <View style={styles.heroCard}>
-          <View style={styles.docIconBox}>
-            <Text style={{ fontSize: 28 }}>{docIcon}</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.docTitle}>{doc.title}</Text>
-            <Text style={styles.docMeta}>{doc.document_type ?? 'Document'} · {dateStr}</Text>
-            {memberName && <Text style={styles.docMeta}>{memberName}</Text>}
-            {doc.facility && <Text style={styles.docMeta}>{doc.facility}</Text>}
-          </View>
-        </View>
-
-        {/* ── AI not yet processed ── */}
-        {!analysis && (
-          <View style={styles.pendingCard}>
-            <Text style={styles.pendingTitle}>Analysis pending</Text>
-            <Text style={styles.pendingText}>
-              Prakrit AI is processing this document. Results usually appear within a minute.
-            </Text>
-          </View>
-        )}
-
-        {/* ── AI Summary ── */}
-        {analysis?.summary && (
-          <View style={styles.insightCard}>
-            <View style={styles.insightBar} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.insightLabel}>AI Analysis</Text>
-              <Text style={styles.insightText}>{analysis.summary}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Lab values / Findings ── */}
-        {labValues.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Findings</Text>
-            {labValues.map((f: any, i: number) => {
-              const statusKey = (f.status ?? 'normal').toLowerCase();
-              const colors = STATUS_COLORS[statusKey] ?? STATUS_COLORS.normal;
-              return (
-                <View key={`${f.label ?? f.name ?? i}`} style={styles.findingRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.findingLabel}>{f.label ?? f.name ?? `Finding ${i + 1}`}</Text>
-                    {f.reference && (
-                      <Text style={styles.findingRef}>Ref: {f.reference}</Text>
-                    )}
-                  </View>
-                  <View style={styles.findingRight}>
-                    <Text style={styles.findingValue}>{f.value}</Text>
-                    {f.unit && <Text style={styles.findingUnit}>{f.unit}</Text>}
-                  </View>
-                  {f.status && (
-                    <View style={[styles.statusBadge, { backgroundColor: colors.bg }]}>
-                      <Text style={[styles.statusText, { color: colors.text }]}>
-                        {f.status}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
-          </View>
-        )}
-
-        {/* ── Recommendations ── */}
-        {recommendations.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recommendations</Text>
-            <View style={styles.recommendCard}>
-              {recommendations.map((r: string, i: number) => (
-                <View key={i} style={[styles.recommendRow, i > 0 && styles.recommendRowBorder]}>
-                  <Text style={styles.recommendBullet}>·</Text>
-                  <Text style={styles.recommendText}>{r}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* ── CTA ── */}
-        <TouchableOpacity
-          style={styles.primaryBtn}
-          onPress={() => router.push('/(tabs)/ai' as any)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.primaryBtnText}>Ask Prakrit AI About This Report</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.disclaimer}>
-          Prakrit AI is not a substitute for professional medical advice, diagnosis, or treatment.
-        </Text>
-
-        <View style={{ height: 32 }} />
-      </ScrollView>
+    <View style={{ width: 28, height: 28, borderRadius: 7, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 11, color: c.color }}>{grade}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#FAFAFA' },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  errorText: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B', marginBottom: 12 },
-  backLink: { marginTop: 8 },
-  backLinkText: { fontFamily: 'Inter-Medium', fontSize: 14, color: '#00B894' },
+// ─── Screen ───────────────────────────────────────────────────────────────────
+export default function DocumentViewerScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const doc = DOCUMENTS_BY_ID[id ?? '3'] ?? DOCUMENTS_BY_ID['3'];
 
-  topNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
-    paddingBottom: 12,
-    backgroundColor: '#FAFAFA',
-  },
-  backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#09090B' },
-  navTitle: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B', flex: 1, textAlign: 'center', marginHorizontal: 8 },
-  navCta: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#00B894' },
-  content: { paddingHorizontal: 20 },
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 2, paddingBottom: 14 }}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke="#09090B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15, color: '#09090B', letterSpacing: -0.2 }} numberOfLines={1}>{doc.title}</Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 1 }}>{doc.lab}</Text>
+        </View>
+        <TouchableOpacity activeOpacity={0.7}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+            <Path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M16 6l-4-4-4 4" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M12 2v13" stroke="#09090B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </TouchableOpacity>
+      </View>
 
-  heroCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    marginBottom: 16,
-  },
-  docIconBox: {
-    width: 56, height: 56, borderRadius: 14,
-    backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center',
-  },
-  docTitle: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: '#09090B' },
-  docMeta: { fontFamily: 'Inter-Regular', fontSize: 12, color: '#71717A', marginTop: 2 },
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32 }}>
 
-  pendingCard: {
-    backgroundColor: '#FEF3C7', borderRadius: 12, borderWidth: 1, borderColor: '#FDE68A',
-    padding: 14, marginBottom: 16,
-  },
-  pendingTitle: { fontFamily: 'Inter-SemiBold', fontSize: 13, color: '#8a5e0a', marginBottom: 4 },
-  pendingText: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#8a5e0a', lineHeight: 18 },
+        {/* AI analysis banner */}
+        <View style={{ backgroundColor: '#E8FDF8', borderWidth: 1.5, borderColor: '#00B894', borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, marginBottom: 20 }}>
+          <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#00B894', alignItems: 'center', justifyContent: 'center' }}>
+            <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+              <Path d="M20 6L9 17l-5-5" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </View>
+          <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 12, color: '#00725E', flex: 1 }}>{doc.aiLabel}</Text>
+        </View>
 
-  insightCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 16,
-    marginBottom: 20,
-    gap: 12,
-  },
-  insightBar: { width: 3, borderRadius: 2, backgroundColor: '#00B894' },
-  insightLabel: {
-    fontFamily: 'Inter-SemiBold', fontSize: 11, color: '#00B894',
-    textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4,
-  },
-  insightText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#09090B', lineHeight: 20 },
+        {/* Extracted values */}
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15, color: '#09090B', marginBottom: 10 }}>Extracted values</Text>
+        <View style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, overflow: 'hidden', marginBottom: 16 }}>
+          {doc.markers.map((m, i) => (
+            <View key={m.name} style={{
+              flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+              paddingHorizontal: 16, paddingVertical: 14,
+              borderBottomWidth: i < doc.markers.length - 1 ? 1 : 0,
+              borderBottomColor: '#E4E4E7',
+            }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: '#09090B' }}>{m.name}</Text>
+                <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>{m.ref}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 13, color: '#09090B' }}>{m.value}</Text>
+                <GradeBadge grade={m.grade} />
+              </View>
+            </View>
+          ))}
+        </View>
 
-  section: { marginBottom: 20 },
-  sectionTitle: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 16, color: '#09090B', marginBottom: 12 },
+        {/* AI note */}
+        <View style={{ backgroundColor: '#F4F4F5', borderRadius: 14, padding: 14, marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: '#00B894', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 9, color: '#FFFFFF' }}>P</Text>
+            </View>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 12, color: '#09090B' }}>Prakrit AI</Text>
+          </View>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: '#09090B', lineHeight: 20 }}>{doc.aiSummary}</Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 8 }}>
+            Prakrit AI is not a substitute for professional medical advice, diagnosis, or treatment.
+          </Text>
+        </View>
 
-  findingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    padding: 14,
-    marginBottom: 8,
-    gap: 10,
-  },
-  findingLabel: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#09090B' },
-  findingRef: { fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 2 },
-  findingRight: { alignItems: 'flex-end' },
-  findingValue: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: '#09090B' },
-  findingUnit: { fontFamily: 'Inter-Regular', fontSize: 11, color: '#71717A' },
-  statusBadge: { borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 },
-  statusText: { fontFamily: 'Inter-Medium', fontSize: 11, textTransform: 'capitalize' },
+        {/* Action buttons */}
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => router.push('/(tabs)/ai')}
+            style={{ flex: 1, height: 48, borderRadius: 13, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E4E4E7' }}>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' }}>Ask AI</Text>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.8}
+            style={{ flex: 1, height: 48, borderRadius: 13, backgroundColor: '#09090B', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#FFFFFF' }}>Share</Text>
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path d="M5 12h14M12 5l7 7-7 7" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </TouchableOpacity>
+        </View>
 
-  recommendCard: {
-    backgroundColor: '#E8FDF8',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#CCFBF1',
-    overflow: 'hidden',
-  },
-  recommendRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 14, gap: 8 },
-  recommendRowBorder: { borderTopWidth: 1, borderTopColor: '#CCFBF1' },
-  recommendBullet: { fontFamily: 'Inter-Bold', fontSize: 16, color: '#00B894', lineHeight: 20, marginTop: -1 },
-  recommendText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#00725E', lineHeight: 20, flex: 1 },
-
-  primaryBtn: {
-    backgroundColor: '#09090B',
-    borderRadius: 13,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  primaryBtnText: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#FFFFFF' },
-
-  disclaimer: { fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', textAlign: 'center' },
-});
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
