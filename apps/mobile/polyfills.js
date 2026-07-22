@@ -4,6 +4,19 @@
 (function() {
   var g = typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : this);
 
+  // Hermes release builds don't have `console` until RN sets it up.
+  // Polyfill it early so any module-level code that calls console doesn't crash.
+  if (typeof console === 'undefined') {
+    var noop = function() {};
+    g.console = {
+      log: noop, warn: noop, error: noop, info: noop, debug: noop,
+      trace: noop, assert: noop, group: noop, groupCollapsed: noop,
+      groupEnd: noop, time: noop, timeEnd: noop, timeLog: noop,
+      count: noop, countReset: noop, table: noop, dir: noop,
+      dirxml: noop, clear: noop,
+    };
+  }
+
   // Force light color scheme — userInterfaceStyle in app.json doesn't apply in Expo Go
   try {
     var Appearance = require('react-native').Appearance;
