@@ -177,7 +177,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/ai')}
             activeOpacity={0.85}
-            style={{ backgroundColor: '#09090B', borderRadius: 14, padding: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            style={{ backgroundColor: '#09090B', borderRadius: 14, padding: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
               <Svg width={13} height={13} viewBox="0 0 52 52" fill="white">
                 <Path d="M14 40V12h14c6 0 11 5 11 11s-5 11-11 11H20v6H14z" />
@@ -186,6 +186,23 @@ export default function HomeScreen() {
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: 'rgba(255,255,255,0.55)', flex: 1 }}>Ask Prakrit AI anything…</Text>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M9 18l6-6-6-6" stroke="rgba(255,255,255,0.4)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </TouchableOpacity>
+
+          {/* Insights shortcut */}
+          <TouchableOpacity onPress={() => router.push('/(tabs)/more')} activeOpacity={0.8}
+            style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, padding: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center' }}>
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="#D4A017" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: '#09090B' }}>Health Insights</Text>
+              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 1 }}>HbA1c improving · 86% adherence</Text>
+            </View>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M9 18l6-6-6-6" stroke="#A1A1AA" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </TouchableOpacity>
 

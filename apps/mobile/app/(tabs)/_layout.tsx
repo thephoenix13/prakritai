@@ -107,7 +107,9 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="ai"
-        options={{ href: null }}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon={AIIcon} focused={focused} label="AI" />,
+        }}
       />
       <Tabs.Screen
         name="medications"
@@ -129,9 +131,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="more"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon={InsightsIcon} focused={focused} label="Insights" />,
-        }}
+        options={{ href: null }}
       />
       {/* Sub-routes — hidden from tab bar */}
       <Tabs.Screen name="score" options={{ href: null }} />
