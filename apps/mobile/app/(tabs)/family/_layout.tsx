@@ -7,6 +7,7 @@ export default function FamilyLayout() {
       <Stack.Screen name="[id]" />
       <Stack.Screen name="circle" />
       <Stack.Screen name="add" />
+      <Stack.Screen name="manage-access" />
     </Stack>
   );
 }
