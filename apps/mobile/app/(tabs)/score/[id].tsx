@@ -1,367 +1,127 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
-import { GradeBadge, gradeFromScore } from '../../../components/ui/GradeBadge';
-import { useFamilyMember } from '../../../lib/queries/family';
-import { useCachedHealthScore, useGenerateHealthScore } from '../../../lib/queries/health-score';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import Svg, { Circle, Path } from 'react-native-svg';
 
-const BREAKDOWN_KEYS = [
-  'metabolic',
-  'cardiovascular',
-  'weight',
-  'adherence',
-  'preventive',
-] as const;
+// ─── Static data ──────────────────────────────────────────────────────────────
+const SYSTEMS = [
+  { name: 'Heart',     grade: 'A' },
+  { name: 'Thyroid',   grade: 'A' },
+  { name: 'Liver',     grade: 'A' },
+  { name: 'Metabolic', grade: 'B' },
+  { name: 'Hormones',  grade: 'B' },
+  { name: 'Kidney',    grade: 'A' },
+  { name: 'Gut',       grade: 'B' },
+];
 
-const BREAKDOWN_LABELS: Record<typeof BREAKDOWN_KEYS[number], string> = {
-  metabolic: 'Metabolic',
-  cardiovascular: 'Cardiovascular',
-  weight: 'Weight',
-  adherence: 'Adherence',
-  preventive: 'Preventive',
+const GRADE_CFG: Record<string, { bg: string; border: string; color: string }> = {
+  A: { bg: '#CCFBF1', border: '#00B894', color: '#00725E' },
+  B: { bg: '#FEF3C7', border: '#D4A017', color: '#8a5e0a' },
+  C: { bg: '#FCE7F3', border: '#F472B6', color: '#be185d' },
+  D: { bg: '#FEE2E2', border: '#EF4444', color: '#b91c1c' },
 };
 
-function formatComputedAt(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+function GradeBadge({ grade, size = 30 }: { grade: string; size?: number }) {
+  const c = GRADE_CFG[grade] ?? GRADE_CFG.B;
+  return (
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.bg, borderWidth: 2, borderColor: c.border, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: size * 0.43, color: c.color }}>{grade}</Text>
+    </View>
+  );
 }
 
-function BackChevron() {
+// ─── Chevron right ────────────────────────────────────────────────────────────
+function ChevronRight() {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M15 18l-6-6 6-6"
-        stroke="#09090B"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+      <Path d="M9 18l6-6-6-6" stroke="#A1A1AA" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }
 
-function TopNav({ onBack }: { onBack: () => void }) {
+// ─── Ghost body silhouette (decorative) ──────────────────────────────────────
+function GhostBody() {
   return (
-    <View style={styles.topNav}>
-      <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-        <BackChevron />
-      </TouchableOpacity>
-      <Text style={styles.navTitle}>Health Score</Text>
-      <View style={{ width: 36 }} />
-    </View>
+    <Svg viewBox="0 0 100 200" fill="#09090B" opacity={0.055}
+      style={{ position: 'absolute', right: -8, top: 0, width: 110, height: 200 }}>
+      <Circle cx="50" cy="20" r="17" />
+      <Path d="M26 47 C22 74 24 104 28 122 L72 122 C76 104 78 74 74 47 C67 43 33 43 26 47Z" />
+      <Path d="M26 52 C15 68 11 92 13 114 L23 112 C23 94 27 72 35 58Z" />
+      <Path d="M74 52 C85 68 89 92 87 114 L77 112 C77 94 73 72 65 58Z" />
+      <Path d="M28 122 C25 150 26 176 28 194 L42 194 C43 174 47 152 50 138 C53 152 57 174 58 194 L72 194 C74 176 75 150 72 122Z" />
+    </Svg>
   );
 }
 
-export default function HealthScore() {
+export default function HealthScoreScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  const memberQuery = useFamilyMember(id);
-  const scoreQuery = useCachedHealthScore(id);
-  const generateScore = useGenerateHealthScore();
-
-  const member = memberQuery.data;
-  const score = scoreQuery.data;
-  const isLoading = memberQuery.isLoading || scoreQuery.isLoading;
-
-  const handleGenerate = () => {
-    if (id) generateScore.mutate(id);
-  };
-
-  // Full-screen loading
-  if (isLoading) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <ActivityIndicator size="large" color="#00B894" />
-      </View>
-    );
-  }
-
-  // No cached score yet
-  if (!score) {
-    return (
-      <View style={styles.root}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-        <TopNav onBack={() => router.back()} />
-        <View style={styles.centered}>
-          <Text style={styles.emptyTitle}>No Health Score Yet</Text>
-          <Text style={styles.emptyBody}>
-            Generate {member?.name ?? 'this member'}'s AI health score from their uploaded
-            documents.
-          </Text>
-          {generateScore.isPending ? (
-            <View style={styles.generatingBox}>
-              <ActivityIndicator color="#00B894" />
-              <Text style={styles.generatingText}>Computing your health score with AI…</Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.generateBtn}
-              onPress={handleGenerate}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.generateBtnText}>Generate Health Score</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    );
-  }
 
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
-      <TopNav onBack={() => router.back()} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+      {/* Header */}
+      <View style={{ paddingHorizontal: 24, paddingTop: 2, paddingBottom: 18, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}
+          style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F4F4F5', alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke="#09090B" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </TouchableOpacity>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 26, color: '#09090B', letterSpacing: -0.5 }}>Health Score</Text>
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Score hero */}
-        <View style={styles.hero}>
-          <Text style={styles.scoreNum}>
-            {score.score}
-            <Text style={styles.scoreDenom}>/100</Text>
-          </Text>
-          <Text style={styles.heroSub}>
-            {member?.name ?? '—'}
-            {score.computed_at ? ` · ${formatComputedAt(score.computed_at)}` : ''}
-          </Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32 }}>
+        {/* Score number */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginBottom: 4 }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 56, color: '#09090B', letterSpacing: -2, lineHeight: 60 }}>88</Text>
+          <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 22, color: '#71717A', marginBottom: 10 }}>/100</Text>
         </View>
+        <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: '#A1A1AA', marginBottom: 16 }}>Priya Sharma · Jul 2026</Text>
 
-        {/* Breakdown section */}
-        <Text style={styles.sectionLabel}>BREAKDOWN</Text>
-        <View style={styles.card}>
-          <View style={styles.systemList}>
-            {BREAKDOWN_KEYS.map((key, i) => {
-              const val = score.breakdown?.[key] ?? 0;
-              const g = gradeFromScore(val);
-              return (
-                <View
-                  key={key}
-                  style={[styles.sysRow, i < BREAKDOWN_KEYS.length - 1 && styles.sysRowBorder]}
-                >
-                  <GradeBadge grade={g} size={24} fontSize={10} />
-                  <Text style={styles.sysName}>{BREAKDOWN_LABELS[key]}</Text>
-                  <Text style={styles.sysScore}>{val}</Text>
-                </View>
-              );
-            })}
+        {/* Biological Age card */}
+        <View style={{ backgroundColor: '#E8FDF8', borderWidth: 1, borderColor: '#CCFBF1', borderRadius: 12, padding: 14, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View>
+            <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 12, color: '#007A64' }}>Biological Age</Text>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, color: '#007A64', marginTop: 2 }}>28 yrs</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#007A64' }}>12 yrs younger</Text>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#007A64' }}>than average</Text>
           </View>
         </View>
 
-        {/* Top concern */}
-        {score.top_concern ? (
-          <View style={styles.concernCard}>
-            <Text style={styles.concernLabel}>TOP CONCERN</Text>
-            <Text style={styles.concernText}>{score.top_concern}</Text>
-          </View>
-        ) : null}
-
-        {/* Positive */}
-        {score.positive ? (
-          <View style={styles.positiveCard}>
-            <Text style={styles.positiveLabel}>POSITIVE</Text>
-            <Text style={styles.positiveText}>{score.positive}</Text>
-          </View>
-        ) : null}
-
-        {/* AI summary note */}
-        <View style={styles.aiNote}>
-          <Text style={styles.aiNoteLabel}>PRAKRIT AI</Text>
-          <Text style={styles.aiNoteText}>{score.summary}</Text>
-          <Text style={styles.aiDisclaimer}>
-            Prakrit AI is not a substitute for professional medical advice, diagnosis, or treatment.
+        {/* Info banner */}
+        <View style={{ backgroundColor: '#F4F4F5', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 12, padding: 12, marginBottom: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" style={{ marginTop: 1, flexShrink: 0 }}>
+            <Circle cx="12" cy="12" r="10" stroke="#A1A1AA" strokeWidth={2} />
+            <Path d="M12 8v4M12 16h.01" stroke="#A1A1AA" strokeWidth={2} strokeLinecap="round" />
+          </Svg>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: '#71717A', flex: 1, lineHeight: 18 }}>
+            Biomarkers are read automatically from the lab reports you upload — no manual entry needed. The more reports you upload, the richer your score gets.
           </Text>
         </View>
 
-        {/* Refresh button */}
-        {generateScore.isPending ? (
-          <View style={styles.generatingBox}>
-            <ActivityIndicator color="#00B894" />
-            <Text style={styles.generatingText}>Computing your health score with AI…</Text>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.refreshBtn} onPress={handleGenerate} activeOpacity={0.8}>
-            <Text style={styles.refreshBtnText}>Refresh Score</Text>
-          </TouchableOpacity>
-        )}
+        {/* By system list */}
+        <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 11, color: '#71717A', letterSpacing: 0.7, textTransform: 'uppercase', marginBottom: 12 }}>By system</Text>
 
-        <View style={{ height: 32 }} />
+        <View style={{ position: 'relative' }}>
+          <GhostBody />
+          <View style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E4E4E7', borderRadius: 14, overflow: 'hidden' }}>
+            {SYSTEMS.map((sys, i) => (
+              <TouchableOpacity key={sys.name} activeOpacity={0.7}
+                onPress={() => router.push(`/(tabs)/score/priya/${encodeURIComponent(sys.name)}`)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, paddingHorizontal: 16, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: '#E4E4E7' }}>
+                <GradeBadge grade={sys.grade} size={24} />
+                <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 14, color: '#09090B', flex: 1 }}>{sys.name}</Text>
+                <ChevronRight />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: '#A1A1AA', marginTop: 14 }}>
+          Last updated 15 Jul 2026 · Apollo Diagnostics
+        </Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#FAFAFA' },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-
-  topNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
-    paddingBottom: 12,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#F4F4F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navTitle: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 17, color: '#09090B' },
-
-  content: { paddingHorizontal: 24 },
-
-  hero: { alignItems: 'center', paddingVertical: 20 },
-  scoreNum: {
-    fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 56,
-    color: '#09090B',
-    letterSpacing: -1,
-  },
-  scoreDenom: { fontFamily: 'SpaceGrotesk-Regular', fontSize: 22, color: '#71717A' },
-  heroSub: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#A1A1AA', marginTop: 4 },
-
-  sectionLabel: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 11,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 8,
-  },
-
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-  systemList: { paddingHorizontal: 16 },
-  sysRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-  },
-  sysRowBorder: { borderBottomWidth: 1, borderBottomColor: '#E4E4E7' },
-  sysName: { fontFamily: 'Inter-SemiBold', fontSize: 14, color: '#09090B', flex: 1 },
-  sysScore: { fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 14, color: '#71717A' },
-
-  concernCard: {
-    backgroundColor: '#FCE7F3',
-    borderLeftWidth: 3,
-    borderLeftColor: '#F472B6',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 12,
-  },
-  concernLabel: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 11,
-    color: '#be185d',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 6,
-  },
-  concernText: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#09090B', lineHeight: 19 },
-
-  positiveCard: {
-    backgroundColor: '#E8FDF8',
-    borderLeftWidth: 3,
-    borderLeftColor: '#00B894',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 12,
-  },
-  positiveLabel: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 11,
-    color: '#007A64',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 6,
-  },
-  positiveText: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#09090B', lineHeight: 19 },
-
-  aiNote: {
-    backgroundColor: '#F4F4F5',
-    borderLeftWidth: 3,
-    borderLeftColor: '#09090B',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 16,
-  },
-  aiNoteLabel: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 11,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 6,
-  },
-  aiNoteText: { fontFamily: 'Inter-Regular', fontSize: 13, color: '#09090B', lineHeight: 19 },
-  aiDisclaimer: { fontFamily: 'Inter-Regular', fontSize: 10, color: '#A1A1AA', marginTop: 8 },
-
-  refreshBtn: {
-    height: 50,
-    borderRadius: 13,
-    borderWidth: 1.5,
-    borderColor: '#09090B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  refreshBtnText: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#09090B' },
-
-  generateBtn: {
-    height: 50,
-    borderRadius: 13,
-    backgroundColor: '#00B894',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    paddingHorizontal: 24,
-    alignSelf: 'stretch',
-  },
-  generateBtnText: { fontFamily: 'SpaceGrotesk-Bold', fontSize: 14, color: '#FFFFFF' },
-
-  emptyTitle: {
-    fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 20,
-    color: '#09090B',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyBody: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#71717A',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-
-  generatingBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    justifyContent: 'center',
-    paddingVertical: 14,
-  },
-  generatingText: { fontFamily: 'Inter-Regular', fontSize: 14, color: '#71717A' },
-});

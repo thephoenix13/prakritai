@@ -105,25 +105,8 @@ export default function ProfileSetup() {
   }
 
   async function handleSave() {
-    if (!userId) return;
-    try {
-      setLoading(true);
-      const { error } = await supabase.from('profiles').update({
-        date_of_birth: dob?.toISOString().split('T')[0] ?? null,
-        blood_type: bloodGroup || null,
-        gender: gender || null,
-        height_cm: heightCm,
-        weight_kg: weightKg,
-        conditions: conditions.filter(c => c !== 'None'),
-        allergies: allergies.trim() || null,
-      }).eq('id', userId);
-      if (error) throw error;
-      router.replace('/(tabs)');
-    } catch {
-      Alert.alert('Error', 'Could not save your profile. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: restore Supabase save when auth is active
+    router.replace('/(tabs)');
   }
 
   const bmiVal = bmi ? parseFloat(bmi) : 0;

@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, Polyline } from 'react-native-svg';
 
 function HomeIcon({ color }: { color: string }) {
   return (
@@ -53,10 +53,19 @@ function MedsIcon({ color }: { color: string }) {
   );
 }
 
-function MoreIcon({ color }: { color: string }) {
+function DocsIcon({ color }: { color: string }) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path d="M4 6h16M4 12h16M4 18h16" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+      <Path d="M14 2v6h6" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function InsightsIcon({ color }: { color: string }) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }
@@ -97,31 +106,31 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="family"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon={FamilyIcon} focused={focused} label="Family" />,
-        }}
-      />
-      <Tabs.Screen
         name="ai"
         options={{
           tabBarIcon: ({ focused }) => <TabIcon icon={AIIcon} focused={focused} label="AI" />,
         }}
       />
       <Tabs.Screen
-        name="medications"
+        name="documents"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon={MedsIcon} focused={focused} label="Meds" />,
+          tabBarIcon: ({ focused }) => <TabIcon icon={DocsIcon} focused={focused} label="Docs" />,
+        }}
+      />
+      <Tabs.Screen
+        name="family"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon={FamilyIcon} focused={focused} label="Family" />,
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon={MoreIcon} focused={focused} label="More" />,
+          tabBarIcon: ({ focused }) => <TabIcon icon={InsightsIcon} focused={focused} label="Insights" />,
         }}
       />
       {/* Sub-routes — hidden from tab bar */}
-      <Tabs.Screen name="documents" options={{ href: null }} />
+      <Tabs.Screen name="medications" options={{ href: null }} />
       <Tabs.Screen name="score" options={{ href: null }} />
     </Tabs>
   );

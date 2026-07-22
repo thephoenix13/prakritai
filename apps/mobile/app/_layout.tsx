@@ -44,7 +44,9 @@ function AuthGate({ session, isLoading }: { session: Session | null; isLoading: 
     if (session) {
       if (inAuth || inOnboarding) router.replace('/(tabs)');
     } else {
-      if (!inOnboarding && !inAuth) router.replace('/(onboarding)');
+      // TODO: restore auth gate — disabled for testing flow
+      // if (!inOnboarding && !inAuth) router.replace('/(onboarding)');
+      if (inAuth || inOnboarding) return; // let user navigate freely in dev
     }
   }, [session, isLoading, segments, navigationState?.key]);
 
